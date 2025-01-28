@@ -17,6 +17,8 @@ import * as tabs from "../ide/tabState"
 import type { RootState } from "../reducers"
 import type { SoundEntity } from "common"
 import { BrowserTabType } from "./BrowserTab"
+import { getUserSounds } from "./soundsThunks"
+import store from "../reducers"
 
 import { SearchBar } from "./Utils"
 
@@ -624,7 +626,16 @@ const WindowedSoundCollection = ({ folders, namesByFolders, currentFilterTab, se
 const DefaultSoundCollection = () => {
     const { t } = useTranslation()
     let folders = useSelector(sounds.selectFilteredRegularFolders)
-    const namesByFolders = useSelector(sounds.selectFilteredRegularNamesByFolders)
+    let namesByFolders = useSelector(sounds.selectFilteredRegularNamesByFolders)
+    folders = ["BOMBA PUERTORRIQUEÑA", "POP", "SALSA", ...folders]
+    namesByFolders = {
+        "BOMBA PUERTORRIQUEÑA": ["IRCA_BOMBA_CONJUNTOS_SICA", "IRCA_BOMBA_SICA_MARACA", "IRCA_BOMBA_SICA_PRIMO_1", "IRCA_BOMBA_SICA_ELEC_PIANO"],
+        "POP": ["YG_POP_SNARE_7", "YG_POP_PERC_2", "Y36_SYNTH_HARP_1", "YG_POP_MELODY_9"], 
+        "SALSA": ["IRCA_SALSA_4_KEYS_1", "IRCA_SALSA_4_KEYS_2", "IRCA_SALSA_4_BASS_2", "IRCA_SALSA_PERC_GUIRO"],
+        ...namesByFolders
+    }
+    console.log(JSON.stringify(folders))
+    console.log(JSON.stringify(namesByFolders))
     const recommendationSounds = useSelector((state: RootState) => state.recommender.recommendations)
     const loggedIn = useSelector(user.selectLoggedIn)
     const tabsOpen = !!useSelector(tabs.selectOpenTabs).length
@@ -636,18 +647,18 @@ const DefaultSoundCollection = () => {
     const title = `${t("soundBrowser.title.collection").toLocaleUpperCase()} (${filtered ? numFiltered + "/" : ""}${numSounds})`
     const [currentFilterTab, setCurrentFilterTab] = useState<keyof sounds.Filters>("artists")
 
-    useEffect(() => {
-        reloadRecommendations()
-    }, [activeTab, getStandardSounds])
+    // useEffect(() => {
+    //     // reloadRecommendations()
+    // }, [activeTab, getStandardSounds])
 
-    // insert "recommendations" folder at the top of the list
-    let foldersWithRecs = namesByFolders
-    if (loggedIn && tabsOpen && !filtered) {
-        const recommendationsTitle = t("soundBrowser.title.recommendations").toLocaleUpperCase()
-        folders = [recommendationsTitle, ...folders]
-        foldersWithRecs = { ...namesByFolders, [recommendationsTitle]: recommendationSounds.slice(0, 5) }
-    }
-    const props = { title, folders, namesByFolders: foldersWithRecs, currentFilterTab, setCurrentFilterTab }
+    // // insert "recommendations" folder at the top of the list
+    // let foldersWithRecs = namesByFolders
+    // if (loggedIn && tabsOpen && !filtered) {
+    //     const recommendationsTitle = t("soundBrowser.title.recommendations").toLocaleUpperCase()
+    //     folders = [recommendationsTitle, ...folders] // =================> Folder of titles
+    //     foldersWithRecs = { ...namesByFolders, [recommendationsTitle]: recommendationSounds.slice(0, 5) }
+    // }
+    const props = { title, folders, namesByFolders: namesByFolders, currentFilterTab, setCurrentFilterTab }
     return <WindowedSoundCollection {...props} />
 }
 
