@@ -935,7 +935,7 @@ export const App = () => {
                         <img className="h-[26px] mx-2.5 min-w-[41px]" src={esLogo} alt="EarSketch Logo" />
                         <h1 className="text-2xl text-white">EarSketch</h1>
                     </a>
-                    <ConfettiLauncher />
+                    {/* <ConfettiLauncher />
                     {showAfeCompetitionBanner &&
                     <div className="hidden w-full lg:flex justify-evenly">
                         <a href="https://www.teachers.earsketch.org/compete"
@@ -947,7 +947,7 @@ export const App = () => {
                             <div><img id="app-logo" src={afeLogo} alt="Amazon Logo" style={{ marginLeft: "17px", marginRight: "0px", height: "13px" }} /></div>
                             Celebrity Remix
                         </a>
-                    </div>}
+                    </div>} */}
                 </div>
 
                 {/* temporary place for the app-generated notifications */}
