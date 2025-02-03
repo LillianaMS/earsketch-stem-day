@@ -92,7 +92,7 @@ export const BrowserTabs = () => {
     const { t } = useTranslation()
     return (
         <div
-            className="flex justify-between text-center text-white bg-blue"
+            className="flex justify-around text-center text-white bg-blue"
             id="browser-tabs"
             role="tablist"
             aria-label="Content manager tabs"
@@ -106,9 +106,9 @@ export const BrowserTabs = () => {
             <BrowserTab name={t("script", { count: 0 }).toLocaleUpperCase()} type={BrowserTabType.Script}>
                 <i className="icon-embed2 pr-2" />
             </BrowserTab>
-            <BrowserTab name="API" type={BrowserTabType.API}>
+            {/* <BrowserTab name="API" type={BrowserTabType.API}>
                 <i className="icon-book pr-2" />
-            </BrowserTab>
+            </BrowserTab> */}
         </div>
     )
 }
