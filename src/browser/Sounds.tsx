@@ -627,15 +627,24 @@ const DefaultSoundCollection = () => {
     const { t } = useTranslation()
     let folders = useSelector(sounds.selectFilteredRegularFolders)
     let namesByFolders = useSelector(sounds.selectFilteredRegularNamesByFolders)
-    folders = ["BOMBA PUERTORRIQUEÑA", "POP", "SALSA", ...folders]
+
+    const usernameUpper = user.selectUserName(store.getState())?.toUpperCase()
+    let userFolder = folders.find(folder => folder === usernameUpper) ?? "User Folder"
+    // console.log("User folder: " + userFolder)
+    
+    // Filter the namesByFolders dictionary to only include the userFolder key
+    const filteredNamesByFolders = {
+        [userFolder]: namesByFolders[userFolder] || []
+    };
+    
+    folders = ["BOMBA PUERTORRIQUEÑA", "POP", "SALSA", ...folders.filter(folder => folder === userFolder)]
     namesByFolders = {
         "BOMBA PUERTORRIQUEÑA": ["IRCA_BOMBA_CONJUNTOS_SICA", "IRCA_BOMBA_SICA_MARACA", "IRCA_BOMBA_SICA_PRIMO_1", "IRCA_BOMBA_SICA_ELEC_PIANO"],
         "POP": ["YG_POP_SNARE_7", "YG_POP_PERC_2", "Y36_SYNTH_HARP_1", "YG_POP_MELODY_9"], 
         "SALSA": ["IRCA_SALSA_4_KEYS_1", "IRCA_SALSA_4_KEYS_2", "IRCA_SALSA_4_BASS_2", "IRCA_SALSA_PERC_GUIRO"],
-        ...namesByFolders
+        ...filteredNamesByFolders
     }
-    console.log(JSON.stringify(folders))
-    console.log(JSON.stringify(namesByFolders))
+
     const recommendationSounds = useSelector((state: RootState) => state.recommender.recommendations)
     const loggedIn = useSelector(user.selectLoggedIn)
     const tabsOpen = !!useSelector(tabs.selectOpenTabs).length
