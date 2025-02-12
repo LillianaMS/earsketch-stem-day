@@ -3,10 +3,6 @@ import ctx from "../audio/context"
 import { SoundEntity } from "common"
 import esconsole from "../esconsole"
 
-const STATIC_AUDIO_URL_DOMAIN = URL_DOMAIN === "https://api.ersktch.gatech.edu/EarSketchWS"
-    ? "https://earsketch.gatech.edu/backend-static"
-    : "https://earsketch-test.ersktch.gatech.edu/backend-static"
-
 export type Sound = SoundEntity & { buffer: AudioBuffer }
 
 export const cache = {
@@ -36,6 +32,7 @@ export function getSound(filekey: string) {
 
 async function _getSound(name: string) {
     esconsole("Loading audio: " + name, ["debug", "audiolibrary"])
+    const url = URL_DOMAIN + "/audio/sample?" + new URLSearchParams({ name })
 
     // STEP 1: check if sound exists
     // TODO: Sample download includes clip verification on server side, so probably we can skip the first part.
@@ -57,12 +54,6 @@ async function _getSound(name: string) {
 
     // STEP 2: Ask the server for the audio file
     esconsole(`Getting ${name} buffer from server`, ["debug", "audiolibrary"])
-
-    // Using the public flag to determine "standard library" sounds. Could be improved.
-    const url = result.public === 1
-        ? STATIC_AUDIO_URL_DOMAIN + "/" + result.path
-        : URL_DOMAIN + "/audio/sample?" + new URLSearchParams({ name })
-
     let data: ArrayBuffer
     try {
         data = await (await fetch(url)).arrayBuffer()
@@ -134,8 +125,7 @@ export function getStandardSounds() {
 async function _getStandardSounds() {
     esconsole("Fetching standard sound metadata", ["debug", "audiolibrary"])
     try {
-        const url = STATIC_AUDIO_URL_DOMAIN + "/audio-standard.json"
-        const sounds: SoundEntity[] = await (await fetch(url)).json()
+        const sounds: SoundEntity[] = await (await fetch(URL_DOMAIN + "/audio/standard")).json()
         const folders = [...new Set(sounds.map(entity => entity.folder))]
         esconsole(`Fetched ${Object.keys(sounds).length} sounds in ${folders.length} folders`, ["debug", "audiolibrary"])
         return { sounds, folders }
