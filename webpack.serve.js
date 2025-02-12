@@ -7,7 +7,7 @@ const { merge } = require("webpack-merge")
 const common = require("./webpack.common.js")
 
 // TODO: variable esHost with env.target for localhost Tomcat server.
-const esHost = "https://api-dev.ersktch.gatech.edu"
+const esHost = "https://api.ersktch.gatech.edu" // eliminate '-dev' to point to production
 const wsHost = esHost.replace("http", "ws")
 
 module.exports = env => {
