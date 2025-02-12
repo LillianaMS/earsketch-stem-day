@@ -965,10 +965,10 @@ export const App = () => {
                     </button>}
 
                     {FLAGS.SHOW_LOCALE_SWITCHER && <LocaleSelector handleSelection={changeLanguage}/>}
-                    <KeyboardShortcuts />
-                    <FontSizeMenu />
+                    {/* <KeyboardShortcuts /> */}
+                    {/* <FontSizeMenu /> */}
                     <SwitchThemeButton />
-                    <MiscActionMenu />
+                    {/* <MiscActionMenu /> */}
                     <NotificationMenu />
                     <LoginMenu {...{ loggedIn, isAdmin, username, password, setUsername, setPassword, login, logout }} />
                 </div>
