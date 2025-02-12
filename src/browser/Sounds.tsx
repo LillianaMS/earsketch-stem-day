@@ -470,13 +470,13 @@ const SoundFilters = ({ currentFilterTab, setCurrentFilterTab, setFilterHeight }
 
     return (
         <div ref={filterRef} className="pb-1">
-            <div className="pb-1">
+            {/* <div className="pb-1">
                 <Filters
                     currentFilterTab={currentFilterTab}
                     setCurrentFilterTab={setCurrentFilterTab}/>
-            </div>
+            </div> */}
             <div className="flex justify-between px-1.5 py-1 mb-0.5">
-                <ShowOnlyFavorites />
+                {/* <ShowOnlyFavorites /> */}
                 <AddSound />
             </div>
             <div className="flex justify-between items-end px-1.5 py-1 mb-2">
