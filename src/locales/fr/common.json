@@ -802,7 +802,7 @@
     }
   },
   "templates": {
-    "python": "# description : \nfrom earsketch import *\n\nsetTempo(120)\n",
+    "python": "# description : \nfrom earsketch import *\n\nsetTempo(100)\n\ncompasFinal = 9\n\nfitMedia(YG_POP_PERC_2, 1, 1, compasFinal)\nfitMedia(IRCA_SALSA_4_KEYS_2, 2, 2.05, compasFinal)",
     "javascript": "// description : \n\nsetTempo(120);\n"
   }
 }

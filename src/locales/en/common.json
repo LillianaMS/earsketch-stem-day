@@ -1176,7 +1176,7 @@
     }
   },
   "templates": {
-    "python": "# description: \nfrom earsketch import *\n\nsetTempo(120)\n",
+    "python": "# description: \nfrom earsketch import *\n\nsetTempo(100)\n\nlastMeasure = 9\n\nfitMedia(YG_POP_PERC_2, 1, 1, lastMeasure)\nfitMedia(IRCA_SALSA_4_KEYS_2, 2, 2.05, lastMeasure)",
     "javascript": "// description: \nsetTempo(120);\n"
   },
   "console": {
