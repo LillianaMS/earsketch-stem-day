@@ -69,44 +69,86 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
         <form onSubmit={e => { e.preventDefault(); registerSong(qrCodeNum, firstName, lastName, email); confirm() }}>
             <ModalBody>
                 <Alert message={t(error)}></Alert>
-                <div className="flex mb-2">
-                    <div className="form-group w-1/2 mx-6">
-                        <label>{t("scriptCreator.qrCodeNum")}</label>
+                <div className="flex flex-col max-w-md mx-auto">
+                    {/* QR Code Number Field */}
+                    <div className="mb-4">
+                        <label className="block mb-2" htmlFor="qrCodeNum">
+                            {t("scriptCreator.qrCodeNum")}
+                        </label>
+                        <div className="relative">
+                            <input 
+                                className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
+                                autoFocus 
+                                autoComplete="off"
+                                name={t("scriptCreator.qrCodeNum")} 
+                                id="qrCodeNum" 
+                                placeholder={t("scriptCreator.qrCodeNum.placeholder")}
+                                title={t("scriptCreator.qrCodeNum")} 
+                                aria-label={t("scriptCreator.qrCodeNum")}
+                                value={qrCodeNum} 
+                                onChange={e => setQrCodeNum(e.target.value)} 
+                            />
+                        </div>
                     </div>
-                    <div className="form-group w-1/2 mx-6">
-                        <label>{t("scriptCreator.firstName")}</label>
+                    
+                    {/* First Name Field */}
+                    <div className="mb-4">
+                        <label className="block mb-2" htmlFor="firstName">
+                            {t("scriptCreator.firstName")}
+                        </label>
+                        <div className="relative">
+                            <input 
+                                className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
+                                autoComplete="off"
+                                name={t("scriptCreator.firstName")} 
+                                id="firstName" 
+                                placeholder={t("scriptCreator.firstName.placeholder")}
+                                title={t("scriptCreator.firstName")} 
+                                aria-label={t("scriptCreator.firstName")}
+                                value={firstName} 
+                                onChange={e => setFirstName(e.target.value)} 
+                            />
+                        </div>
                     </div>
-                    <div className="form-group w-1/2 mx-6">
-                        <label>{t("scriptCreator.lastName")}</label>
+                    
+                    {/* Last Name Field */}
+                    <div className="mb-4">
+                        <label className="block mb-2" htmlFor="lastName">
+                            {t("scriptCreator.lastName")}
+                        </label>
+                        <div className="relative">
+                            <input 
+                                className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
+                                autoComplete="off"
+                                name={t("scriptCreator.lastName")} 
+                                id="lastName" 
+                                placeholder={t("scriptCreator.lastName.placeholder")}
+                                title={t("scriptCreator.lastName")} 
+                                aria-label={t("scriptCreator.lastName")}
+                                value={lastName} 
+                                onChange={e => setLastName(e.target.value)} 
+                            />
+                        </div>
                     </div>
-                    <div className="form-group w-1/2 mx-6">
-                        <label>{t("scriptCreator.email")}</label>
-                    </div>
-                </div>
-                <div className="flex">
-                    <div className="w-1/2 mx-6 relative">
-                        <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.qrCodeNum")} id="qrCodeNum" placeholder={t("scriptCreator.qrCodeNum.placeholder")}
-                            title={t("scriptCreator.qrCodeNum")} aria-label={t("scriptCreator.qrCodeNum")}
-                            value={qrCodeNum} onChange={e => setQrCodeNum(e.target.value)} />
-                    </div>
-                    <div className="w-1/2 mx-6 relative">
-                        <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.firstName")} id="firstName" placeholder={t("scriptCreator.firstName.placeholder")}
-                            title={t("scriptCreator.firstName")} aria-label={t("scriptCreator.firstName")}
-                            value={firstName} onChange={e => setFirstName(e.target.value)} />
-                    </div>
-                    <div className="w-1/2 mx-6 relative">
-                        <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.lastName")} id="lastName" placeholder={t("scriptCreator.lastName.placeholder")}
-                            title={t("scriptCreator.lastName")} aria-label={t("scriptCreator.lastName")}
-                            value={lastName} onChange={e => setLastName(e.target.value)} />
-                    </div>
-                    <div className="w-1/2 mx-6 relative">
-                        <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.email")} id="email" placeholder={t("scriptCreator.email.placeholder")}
-                            title={t("scriptCreator.email")} aria-label={t("scriptCreator.email")}
-                            value={email} onChange={e => setEmail(e.target.value)} />
+                    
+                    {/* Email Field */}
+                    <div className="mb-4">
+                        <label className="block mb-2" htmlFor="email">
+                            {t("scriptCreator.email")}
+                        </label>
+                        <div className="relative">
+                            <input 
+                                className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
+                                autoComplete="off"
+                                name={t("scriptCreator.email")} 
+                                id="email" 
+                                placeholder={t("scriptCreator.email.placeholder")}
+                                title={t("scriptCreator.email")} 
+                                aria-label={t("scriptCreator.email")}
+                                value={email} 
+                                onChange={e => setEmail(e.target.value)} 
+                            />
+                        </div>
                     </div>
                 </div>
             </ModalBody>
