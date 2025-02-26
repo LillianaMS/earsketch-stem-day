@@ -9,7 +9,7 @@ import store from "../reducers"
 import { ModalFooter, ModalHeader, ModalBody, Alert } from "../Utils"
 import { set } from "lodash";
 
-export function validateScriptName(extension: string, qrCodeNum: string, firstName: string) { // Añadir validación para los nuevos datos
+export function validateScriptName(name: string, extension: string, qrCodeNum: string = "", firstName: string = "") {
     const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
     const scripts = scriptsState.selectRegularScripts(store.getState())
 
@@ -42,14 +42,10 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
-    // const [scriptName, setScriptName] = useState("")
-    // const [mp3Url, setMp3Url] = useState("")
-    const [shareID, setShareID] = useState("")
-    const [shareUrl, setShareUrl] = useState("")
     
     const confirm = () => {
         try {
-            close(validateScriptName(extension, qrCodeNum, firstName)) // Añadir validación para los nuevos datos
+            close(validateScriptName("", extension, qrCodeNum, firstName))
         } catch (error) {
             setError(error.message)
         }
@@ -59,7 +55,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
         const prServerDir = "remoodle.fun/nsf-stem-day/canciones/"
         const mp3Url = prServerDir + qrCodeNum + ".mp3"
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
-        // No necesito (y no tengo) el shareID y shareUrl. Esos serán un update al DB luego de que el script se haya creado
+        
         try {
             const response = await axios.post("http://localhost:8081/api/registry", { "qrCodeNum": qrCodeNum, "firstName": firstName, "lastName": lastName, "email": email, "scriptName": scriptName, "mp3Url": mp3Url })
             console.log(JSON.stringify(response.data))
@@ -76,49 +72,45 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                 <div className="flex mb-2">
                     <div className="form-group w-1/2 mx-6">
                         <label>{t("scriptCreator.qrCodeNum")}</label>
-                        <p className="text-sm">{t("scriptCreator.scriptName.subtext")}</p>
                     </div>
                     <div className="form-group w-1/2 mx-6">
                         <label>{t("scriptCreator.firstName")}</label>
-                        <p className="text-sm">{t("scriptCreator.scriptName.subtext")}</p>
                     </div>
                     <div className="form-group w-1/2 mx-6">
                         <label>{t("scriptCreator.lastName")}</label>
-                        <p className="text-sm">{t("scriptCreator.scriptName.subtext")}</p>
                     </div>
                     <div className="form-group w-1/2 mx-6">
                         <label>{t("scriptCreator.email")}</label>
-                        <p className="text-sm">{t("scriptCreator.scriptName.subtext")}</p>
                     </div>
                 </div>
                 <div className="flex">
                     <div className="w-1/2 mx-6 relative">
                         <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.qrCodeNum")} id="qrCodeNum" placeholder={t("scriptCreator.qrCodeNum")}
+                            name={t("scriptCreator.qrCodeNum")} id="qrCodeNum" placeholder={t("scriptCreator.qrCodeNum.placeholder")}
                             title={t("scriptCreator.qrCodeNum")} aria-label={t("scriptCreator.qrCodeNum")}
                             value={qrCodeNum} onChange={e => setQrCodeNum(e.target.value)} />
                     </div>
                     <div className="w-1/2 mx-6 relative">
                         <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.firstName")} id="firstName" placeholder={t("scriptCreator.firstName")}
+                            name={t("scriptCreator.firstName")} id="firstName" placeholder={t("scriptCreator.firstName.placeholder")}
                             title={t("scriptCreator.firstName")} aria-label={t("scriptCreator.firstName")}
                             value={firstName} onChange={e => setFirstName(e.target.value)} />
                     </div>
                     <div className="w-1/2 mx-6 relative">
                         <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.lastName")} id="lastName" placeholder={t("scriptCreator.lastName")}
+                            name={t("scriptCreator.lastName")} id="lastName" placeholder={t("scriptCreator.lastName.placeholder")}
                             title={t("scriptCreator.lastName")} aria-label={t("scriptCreator.lastName")}
                             value={lastName} onChange={e => setLastName(e.target.value)} />
                     </div>
                     <div className="w-1/2 mx-6 relative">
                         <input className="form-input w-full dark:bg-transparent placeholder:text-gray-300" autoFocus autoComplete="off"
-                            name={t("scriptCreator.email")} id="email" placeholder={t("scriptCreator.email")}
+                            name={t("scriptCreator.email")} id="email" placeholder={t("scriptCreator.email.placeholder")}
                             title={t("scriptCreator.email")} aria-label={t("scriptCreator.email")}
                             value={email} onChange={e => setEmail(e.target.value)} />
                     </div>
                 </div>
             </ModalBody>
-            <ModalFooter submit="create" close={close} /> {/* añadir aquí una función para enviar datos a nuestra DB? Tendría que modificar la definición del ModalFooter */}
+            <ModalFooter submit="create" close={close} />
         </form>
     </>
 }
