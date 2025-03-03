@@ -503,7 +503,7 @@ export const Editor = ({ importScript }: { importScript: (s: Script) => void }) 
     const collaborators = useSelector(collabState.selectCollaborators)
     const blocksMode = useSelector(selectBlocksMode)
     const autocomplete = useSelector(selectAutocomplete)
-    const [inBlocksMode, setInBlocksMode] = useState(false)
+    const [inBlocksMode, setInBlocksMode] = useState(blocksMode)
     const [shaking, setShaking] = useState(false)
     const locale = useSelector(appState.selectLocale)
 
@@ -526,6 +526,11 @@ export const Editor = ({ importScript }: { importScript: (s: Script) => void }) 
 
             shakeImportButton = startShaking
             resolveReady()
+            
+            // Initialize blocksMode on editor load
+            if (blocksMode) {
+                setTimeout(() => tryToEnterBlocksMode(), 100)
+            }
         }
     }, [editorElement.current])
 
@@ -543,7 +548,16 @@ export const Editor = ({ importScript }: { importScript: (s: Script) => void }) 
             droplet.setMode(language, blocksModes[language].modeOptions)
             droplet.setPalette(blocksModes[language].palette)
         }
-        const result = droplet.setValue_raw(getContents())
+        
+        // Only try to set content if we have valid content to set
+        const content = getContents()
+        if (!content || content === "Loading...") {
+            // If no valid content yet, try again later
+            setTimeout(() => tryToEnterBlocksMode(), 500)
+            return
+        }
+        
+        const result = droplet.setValue_raw(content)
         if (result.success) {
             droplet.resize()
             setInBlocksMode(true)
@@ -551,7 +565,8 @@ export const Editor = ({ importScript }: { importScript: (s: Script) => void }) 
         } else {
             dispatch(setBlocksMode(false))
             const message = t("messages:idecontroller:blocksError", { error: result.error.toString() })
-            userNotification.showBanner(message, "failure1")
+            // Use a default duration to avoid the undefined error
+            userNotification.showBanner(message, "failure")
         }
     }
 

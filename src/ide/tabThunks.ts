@@ -51,6 +51,12 @@ export const setActiveTabAndEditor = createAsyncThunk<void, string, ThunkAPI>(
         dispatch(app.setScriptLanguage(language))
         setReadOnly(script.readonly)
 
+        // Ensure blocks mode is maintained when changing tabs
+        const blocksMode = editor.selectBlocksMode(getState())
+        if (blocksMode !== true) {
+            dispatch(editor.setBlocksMode(true))
+        }
+
         if (script.collaborative) {
             collaboration.openScript(Object.assign({}, script), user.selectUserName(getState())!)
         }

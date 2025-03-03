@@ -12,7 +12,7 @@ export interface Log {
 const ideSlice = createSlice({
     name: "ide",
     initialState: {
-        blocksMode: false,
+        blocksMode: true,
         logs: [] as Log[],
         autocomplete: true,
         scriptMatchesDAW: false,
