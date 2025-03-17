@@ -57,6 +57,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
         
         try {
+            // After deployment, change the URL to the production server
             const response = await axios.post("http://localhost:8081/api/registry", { "qrCodeNum": qrCodeNum, "firstName": firstName, "lastName": lastName, "email": email, "scriptName": scriptName, "mp3Url": mp3Url })
             console.log(JSON.stringify(response.data))
         } catch (error) {

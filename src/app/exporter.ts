@@ -13,6 +13,9 @@ const dummyAnchor = document.createElement("a")
 document.body.appendChild(dummyAnchor)
 dummyAnchor.style.display = "none"
 
+// URL for the stem-day-app server
+const STEM_DAY_SERVER_URL = "http://localhost:8081/api"
+
 export function download(name: string, blob: Blob) {
     const url = window.URL.createObjectURL(blob)
     dummyAnchor.href = url
@@ -50,6 +53,7 @@ async function exportAudio(script: Script, type: string, render: (result: DAWDat
         const blob = await render(result)
         esconsole(`Ready to download ${type} file.`, ["debug", "exporter"])
         download(`${name}.${type}`, blob)
+        return blob // Return the blob for further use
     } catch (err) {
         esconsole(err, ["error", "exporter"])
         throw i18n.t("messages:download.rendererror")
@@ -62,6 +66,46 @@ export function wav(script: Script) {
 
 export function mp3(script: Script) {
     return exportAudio(script, "mp3", renderer.renderMp3)
+}
+
+// Function to upload the MP3 file to the server
+export async function uploadMp3ToServer(script: Script) {
+    try {
+        // First generate the MP3 file
+        const blob = await exportAudio(script, "mp3", renderer.renderMp3)
+        const name = ESUtils.parseName(script.name)
+        
+        // Create a new blob with the correct MIME type
+        const mp3Blob = new Blob([blob], { type: 'audio/mpeg' })
+        
+        // Create FormData to send the file
+        const formData = new FormData()
+        formData.append('mp3File', mp3Blob, `${name}.mp3`)
+        
+        // Send the file to the server
+        const response = await fetch(`${STEM_DAY_SERVER_URL}/upload-song`, {
+            method: 'POST',
+            body: formData,
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            esconsole(`Server error: ${errorText}`, ["error", "exporter"])
+            throw new Error(`Server responded with status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Unknown error occurred during upload')
+        }
+        
+        esconsole(`MP3 file uploaded successfully: ${data.mp3Url}`, ["debug", "exporter"])
+        return data.mp3Url
+    } catch (err) {
+        esconsole(`Error uploading MP3 to server: ${err}`, ["error", "exporter"])
+        throw new Error(i18n.t("messages:upload.error") || 'Error uploading MP3 file')
+    }
 }
 
 export async function multiTrack(script: Script) {
@@ -128,4 +172,28 @@ export function print(script: Script) {
     pri.document.close()
     pri.focus()
     pri.print()
+}
+
+// Export types for use in the UI
+export const EXPORT_TYPES = {
+    script: {
+        function: text,
+        label: "Script Text"
+    },
+    wav: {
+        function: wav,
+        label: "WAV Audio"
+    },
+    mp3: {
+        function: mp3,
+        label: "MP3 Audio"
+    },
+    multitrack: {
+        function: multiTrack,
+        label: "Multitrack ZIP"
+    },
+    finalizar: {
+        function: uploadMp3ToServer,
+        label: "Finalizar"
+    }
 }

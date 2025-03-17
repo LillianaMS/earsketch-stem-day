@@ -12,6 +12,7 @@ import store from "../reducers"
 import * as scripts from "../browser/scriptsState"
 import reporter from "../app/reporter"
 import * as user from "../user/userState"
+import { EXPORT_TYPES } from "../app/exporter"
 
 const UndoRedoButtons = () => {
     const enabled = "cursor-pointer text-black dark:text-white"
@@ -116,6 +117,29 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
     const scriptType = ((!script || script.readonly) && "readonly") || (script.isShared && "shared") || "regular"
     const { t } = useTranslation()
 
+    const [loading, setLoading] = useState({
+        script: false,
+        wav: false,
+        mp3: false,
+        multitrack: false,
+        finalizar: false,
+    })
+
+    const save = async (type: keyof typeof EXPORT_TYPES) => {
+        setLoading({ ...loading, [type]: true })
+        const exportFunction = EXPORT_TYPES[type].function
+        try {
+            const result = await exportFunction(script)
+            setLoading({ ...loading, [type]: false })
+            return result
+        } catch (error) {
+            setLoading({ ...loading, [type]: false })
+            // TODO: Maybe show this error inside the modal?
+            // For now, show a notification
+            alert(error)
+        }
+    }
+
     const button = [{
         id: "run-button",
         title: t("editor.run"),
@@ -147,6 +171,27 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
             <div className={`${openTabs.length ? "flex" : "hidden"} items-center space-x-8`}>
                 <UndoRedoButtons />
                 <SettingsMenu />
+                {(scriptType !== "readonly") && (
+                    <button
+                        className={`
+                                rounded-full
+                                text-white
+                                cursor-pointer
+                                px-2.5
+                                bg-blue-600
+                                ${loading.finalizar ? 'opacity-50 cursor-wait' : ''}
+                            `}
+                        onClick={() => {
+                            save('finalizar')
+                        }}
+                        disabled={loading.finalizar}
+                        title="Finalizar"
+                        aria-label="Finalizar"
+                    >
+                        <i className="icon-upload pr-2" />
+                        FINALIZAR
+                    </button>
+                )}
                 {(loggedIn && scriptType !== "readonly" && !(scriptType === "shared" && script?.collaborative)) && (
                     <button
                         className={`
