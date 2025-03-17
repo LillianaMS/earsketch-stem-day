@@ -7,6 +7,8 @@ import esconsole from "../esconsole"
 import * as ESUtils from "../esutils"
 import * as renderer from "../audio/renderer"
 import * as runner from "./runner"
+import { openModal } from "./modal"
+import { OverwriteConfirm, UploadProgress, UploadSuccess, UploadError } from "./FinalizarModal"
 
 // Make a dummy anchor for downloading blobs.
 const dummyAnchor = document.createElement("a")
@@ -106,8 +108,8 @@ export async function uploadMp3ToServer(script: Script) {
         const fileExists = await checkFileExists(mp3FileName)
         
         if (fileExists) {
-            // Ask user for confirmation to overwrite
-            const confirmOverwrite = confirm(`The file ${mp3FileName} already exists. Do you want to overwrite it?`)
+            // Ask user for confirmation to overwrite using EarSketch modal
+            const confirmOverwrite = await openModal(OverwriteConfirm, { fileName: mp3FileName })
             
             if (!confirmOverwrite) {
                 esconsole("File upload cancelled by user", ["debug", "exporter"])
@@ -125,23 +127,63 @@ export async function uploadMp3ToServer(script: Script) {
         const formData = new FormData()
         formData.append('mp3File', mp3Blob, mp3FileName)
         
+        // Open progress modal
+        const uploadProgressModal = {
+            modal: UploadProgress,
+            props: { fileName: mp3FileName, progress: 0 },
+            closeAfterUpload: true
+        }
+        
+        let closeProgressModal: () => void = () => {}
+        
+        const progressPromise = new Promise<void>((resolve) => {
+            // Show progress modal but keep it open until upload completes
+            openModal(UploadProgress, { 
+                fileName: mp3FileName, 
+                progress: 0
+            }).then(result => {
+                if (typeof result === 'function') {
+                    closeProgressModal = result
+                } else {
+                    closeProgressModal = () => {}
+                }
+                resolve()
+            })
+        })
+        
         // Send the file to the server
         const response = await fetch(`${STEM_DAY_SERVER_URL}/upload-song`, {
             method: 'POST',
             body: formData,
         })
         
+        // Close the progress modal
+        closeProgressModal()
+        
         if (!response.ok) {
             const errorText = await response.text()
             esconsole(`Server error: ${errorText}`, ["error", "exporter"])
+            // Show error modal
+            await openModal(UploadError, { 
+                fileName: mp3FileName, 
+                errorMessage: `Server responded with status: ${response.status}` 
+            })
             throw new Error(`Server responded with status: ${response.status}`)
         }
         
         const data = await response.json()
         
         if (!data.success) {
+            // Show error modal
+            await openModal(UploadError, { 
+                fileName: mp3FileName, 
+                errorMessage: data.message || 'Unknown error occurred during upload' 
+            })
             throw new Error(data.message || 'Unknown error occurred during upload')
         }
+        
+        // Show success modal
+        await openModal(UploadSuccess, { fileName: mp3FileName })
         
         esconsole(`MP3 file uploaded successfully: ${data.mp3Url}`, ["debug", "exporter"])
         return data.mp3Url

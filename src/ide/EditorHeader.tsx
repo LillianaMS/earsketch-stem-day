@@ -138,17 +138,10 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
                 return null
             }
             
-            if (type === 'finalizar' && result) {
-                alert('File successfully uploaded to server!')
-            }
-            
             return result
         } catch (error) {
             setLoading({ ...loading, [type]: false })
-            // Show error notification only if it's not a user cancellation
-            if (error.message !== "Upload cancelled") {
-                alert(error)
-            }
+            // Error will be shown by the modal system
             return null
         }
     }
@@ -192,7 +185,8 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
                                 cursor-pointer
                                 px-2.5
                                 bg-blue-600
-                                ${loading.finalizar ? 'opacity-50 cursor-wait' : ''}
+                                ${loading.finalizar ? 'opacity-75' : ''}
+                                flex items-center
                             `}
                         onClick={() => {
                             save('finalizar')
@@ -201,8 +195,17 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
                         title="Finalizar"
                         aria-label="Finalizar"
                     >
-                        <i className="icon-upload pr-2" />
-                        FINALIZAR
+                        {loading.finalizar ? (
+                            <>
+                                <div className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2"></div>
+                                FINALIZANDO...
+                            </>
+                        ) : (
+                            <>
+                                <i className="icon-music pr-2" />
+                                FINALIZAR
+                            </>
+                        )}
                     </button>
                 )}
                 {(loggedIn && scriptType !== "readonly" && !(scriptType === "shared" && script?.collaborative)) && (
