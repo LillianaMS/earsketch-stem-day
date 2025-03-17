@@ -46,13 +46,16 @@ async function compile(script: Script) {
 }
 
 // Exports the script as an audio file.
-async function exportAudio(script: Script, type: string, render: (result: DAWData) => Promise<Blob>) {
+async function exportAudio(script: Script, type: string, render: (result: DAWData) => Promise<Blob>, shouldDownload = true) {
     const name = ESUtils.parseName(script.name)
     const result = await compile(script)
     try {
         const blob = await render(result)
-        esconsole(`Ready to download ${type} file.`, ["debug", "exporter"])
-        download(`${name}.${type}`, blob)
+        esconsole(`Ready to process ${type} file.`, ["debug", "exporter"])
+        // Only download if shouldDownload is true
+        if (shouldDownload) {
+            download(`${name}.${type}`, blob)
+        }
         return blob // Return the blob for further use
     } catch (err) {
         esconsole(err, ["error", "exporter"])
@@ -68,19 +71,59 @@ export function mp3(script: Script) {
     return exportAudio(script, "mp3", renderer.renderMp3)
 }
 
+// Function to check if a file exists on the server
+async function checkFileExists(fileName: string): Promise<boolean> {
+    try {
+        const response = await fetch(`${STEM_DAY_SERVER_URL}/check-file-exists`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fileName })
+        })
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        return data.success && data.exists
+    } catch (err) {
+        esconsole(`Error checking if file exists: ${err}`, ["error", "exporter"])
+        return false // Assume file doesn't exist in case of error
+    }
+}
+
 // Function to upload the MP3 file to the server
 export async function uploadMp3ToServer(script: Script) {
     try {
-        // First generate the MP3 file
-        const blob = await exportAudio(script, "mp3", renderer.renderMp3)
-        const name = ESUtils.parseName(script.name)
+        // Get the filename without extension
+        const scriptName = script.name
+        // Replace file extension with .mp3
+        const mp3FileName = scriptName.replace(/\.(py|js)$/, '.mp3')
+        
+        // Check if file already exists
+        const fileExists = await checkFileExists(mp3FileName)
+        
+        if (fileExists) {
+            // Ask user for confirmation to overwrite
+            const confirmOverwrite = confirm(`The file ${mp3FileName} already exists. Do you want to overwrite it?`)
+            
+            if (!confirmOverwrite) {
+                esconsole("File upload cancelled by user", ["debug", "exporter"])
+                throw new Error("Upload cancelled")
+            }
+        }
+        
+        // First generate the MP3 file but don't download it locally
+        const blob = await exportAudio(script, "mp3", renderer.renderMp3, false)
         
         // Create a new blob with the correct MIME type
         const mp3Blob = new Blob([blob], { type: 'audio/mpeg' })
         
         // Create FormData to send the file
         const formData = new FormData()
-        formData.append('mp3File', mp3Blob, `${name}.mp3`)
+        formData.append('mp3File', mp3Blob, mp3FileName)
         
         // Send the file to the server
         const response = await fetch(`${STEM_DAY_SERVER_URL}/upload-song`, {
@@ -104,6 +147,10 @@ export async function uploadMp3ToServer(script: Script) {
         return data.mp3Url
     } catch (err) {
         esconsole(`Error uploading MP3 to server: ${err}`, ["error", "exporter"])
+        // Don't show error message for user-cancelled uploads
+        if (err.message === "Upload cancelled") {
+            return null
+        }
         throw new Error(i18n.t("messages:upload.error") || 'Error uploading MP3 file')
     }
 }

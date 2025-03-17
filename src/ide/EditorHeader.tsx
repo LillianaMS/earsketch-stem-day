@@ -131,12 +131,25 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
         try {
             const result = await exportFunction(script)
             setLoading({ ...loading, [type]: false })
+            
+            // If the result is null, it means the user cancelled the operation
+            // (e.g., chose not to overwrite an existing file)
+            if (result === null && type === 'finalizar') {
+                return null
+            }
+            
+            if (type === 'finalizar' && result) {
+                alert('File successfully uploaded to server!')
+            }
+            
             return result
         } catch (error) {
             setLoading({ ...loading, [type]: false })
-            // TODO: Maybe show this error inside the modal?
-            // For now, show a notification
-            alert(error)
+            // Show error notification only if it's not a user cancellation
+            if (error.message !== "Upload cancelled") {
+                alert(error)
+            }
+            return null
         }
     }
 
