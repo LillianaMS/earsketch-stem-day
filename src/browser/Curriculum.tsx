@@ -42,10 +42,15 @@ const TutorialContent = () => {
             <p>Primero, ve este corto tutorial para que te familiarices con EarSketch y con el código que vas a estar trabajando.</p>
             
             <div class="video-container my-6">
-                <video controls width="100%" poster="/img/video-thumbnail.png">
-                    <source src="https://example.com/tutorial-video.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/9mmUgjucuKo" 
+                    title="Tutorial de EarSketch" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen="true"
+                ></iframe>
             </div>
         </div>
         
