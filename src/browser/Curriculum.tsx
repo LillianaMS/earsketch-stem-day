@@ -1,217 +1,21 @@
-import React, { useEffect, useRef, ChangeEvent } from "react"
+import React, { useEffect, useRef } from "react"
 import { useAppDispatch as useDispatch, useAppSelector as useSelector } from "../hooks"
-import { Hilitor } from "../../lib/hilitor"
 
 import * as appState from "../app/appState"
-import { Collapsed, SearchBar } from "./Utils"
-import * as curriculum from "./curriculumState"
+import { Collapsed } from "./Utils"
 import * as ESUtils from "../esutils"
 import * as layout from "../ide/layoutState"
 import * as userNotification from "../user/notification"
-import { OLD_CURRICULUM_LOCATIONS } from "../data/old_curriculum"
-import { useHeightLimiter } from "../Utils"
 import { useTranslation } from "react-i18next"
-import * as cai from "../cai/caiState"
-import * as caiThunks from "../cai/caiThunks"
-import { Language } from "common"
-
-const SECTION_URL_CHARACTER = ":"
-
-const copyURL = (language: Language, currentLocation: number[]) => {
-    const page = urlToPermalink(curriculum.getURLForLocation(currentLocation))
-    const url = `${SITE_BASE_URI}/?curriculum=${page}&language=${language}`
-    navigator.clipboard.writeText(url)
-    userNotification.show("Curriculum URL was copied to the clipboard")
-}
-
-const urlToPermalink = (url: string) => {
-    return url
-        .replace(".html", "")
-        .replace("#", SECTION_URL_CHARACTER)
-}
-
-const getPermalinkParts = (permalink: string) => {
-    return permalink.split(SECTION_URL_CHARACTER)
-}
-
-const permalinkToURL = (permalink: string) => {
-    const linkParts = getPermalinkParts(permalink)
-    linkParts[0] += ".html"
-    if (linkParts.length === 2) {
-        linkParts[0] += "#"
-    }
-    return linkParts.join("")
-}
-
-const checkLegacyURLs = (permalink: string) => {
-    const linkParts = getPermalinkParts(permalink)
-    // first check to see if the full permalink exists in our legacy mapping
-    let url = OLD_CURRICULUM_LOCATIONS[permalink]
-    if (url !== undefined) {
-        return url
-    }
-    // if not, and if the permalink includes a section hash,
-    // then check if just the portion to the left of the hash exists in our legacy mapping
-    if (linkParts.length === 2) {
-        url = OLD_CURRICULUM_LOCATIONS[linkParts[0]]
-        if (url !== undefined) {
-            url += "#" + linkParts[1]
-        }
-    }
-    // url will be undefined if we don't have a legacy mapping for it, and then we attempt to load url as-is
-    return url
-}
-
-const TableOfContentsChapter = ({ unitIdx, ch, chIdx }: { unitIdx: number, ch: curriculum.TOCItem, chIdx: number }) => {
-    const dispatch = useDispatch()
-    const focus = useSelector(curriculum.selectFocus)
-    const toc = useSelector(curriculum.selectTableOfContents)
-    const chNumForDisplay = curriculum.getChNumberForDisplay(toc, unitIdx, chIdx)
-    const location = useSelector(curriculum.selectCurrentLocation)
-    const isCurrentChapter = location[0] === unitIdx && location[1] === chIdx
-    const { t } = useTranslation()
-    return (
-        <li
-            className="ltr:pl-5 rtl:pr-5 py-0.5"
-            onClick={(e) => { e.stopPropagation(); dispatch(curriculum.toggleFocus([unitIdx, chIdx])) }}
-        >
-            <span className="inline-grid grid-flow-col "
-                style={{ gridTemplateColumns: "17px 1fr" }}>
-                <span>
-                    {ch.sections && ch.sections.length > 0 &&
-                    <button className="text-sm" aria-label={`${focus[1] === chIdx ? t("curriculum.collapseChapterDescriptive", { title: ch.title }) : t("curriculum.expandChapterDescriptive", { title: ch.title })}`} title={`${focus[1] === chIdx ? t("curriculum.collapseChapter") : t("curriculum.expandChapter")}`}><i className={`ltr:pr-1 rtl:pl-1 icon icon-arrow-${focus[1] === chIdx ? "down" : "right"}`} /></button>}
-                </span>
-                <a href="#"
-                    className="text-sm text-black dark:text-white flex"
-                    onClick={e => { e.preventDefault(); e.stopPropagation(); dispatch(curriculum.fetchContent({ location: [unitIdx, chIdx], url: ch.URL })) }}>
-                    <span>{chNumForDisplay}{chNumForDisplay && <>.</>}</span>
-                    <span className="ltr:pl-1 rtl:pr-1">{ch.title}</span>
-                </a>
-            </span>
-            <ul>
-                {focus[1] === chIdx && ch.sections &&
-                ch.sections.map((sec, secIdx) =>
-                    <li role="button" aria-label={t("curriculum.openSection", { section: sec.title })} key={secIdx}
-                        className={"py-1" + (isCurrentChapter && location[2] === secIdx ? " bg-blue-100 dark:bg-gray-700" : "")}
-                    >
-                        <span className="ltr:pl-10 rtl:pr-10 flex">
-                            <a href="#"
-                                className="text-sm text-black dark:text-white flex"
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); dispatch(curriculum.fetchContent({ location: [unitIdx, chIdx, secIdx], url: sec.URL })) }}
-                                aria-current={isCurrentChapter && location[2] === secIdx ? "page" : "false"}
-                            >
-                                <span>{chNumForDisplay}.{secIdx + 1} </span>
-                                <span className="ltr:pl-1 rtl:pr-1">{sec.title}</span>
-                            </a>
-                        </span>
-                    </li>
-                )}
-            </ul>
-        </li>
-    )
-}
-
-const TableOfContents = () => {
-    const dispatch = useDispatch()
-    const focus = useSelector(curriculum.selectFocus)
-    const toc = useSelector(curriculum.selectTableOfContents)
-    const currentLocation = useSelector(curriculum.selectCurrentLocation)
-    const { t } = useTranslation()
-    return (
-        <>
-            <div className="inline-block text-sm font-bold text-center w-full">{t("curriculum.toc")}</div>
-            <hr className="border-1 my-1 border-black dark:border-white" />
-            <ul id="toc" className="select-none">
-                {toc.map((unit, unitIdx) => (
-                    <li key={unitIdx}
-                        className=""
-                        onClick={() => dispatch(curriculum.toggleFocus([unitIdx, null]))}>
-                        <div className={"p-1 flex items-start" + (currentLocation[0] === unitIdx && currentLocation.length === 1 ? " bg-blue-100 dark:bg-gray-700" : "")}>
-                            {unit.chapters && unit.chapters.length > 0 &&
-                            <button aria-label={focus[0] === unitIdx ? t("curriculum.collapseUnitDescriptive", { title: unit.title }) : t("curriculum.expandUnitDescriptive", { title: unit.title })}
-                                title={focus[0] === unitIdx ? t("curriculum.collapseUnit") : t("curriculum.expandUnit")}>
-                                <i className={`text-sm ltr:pr-1 rtl:pl-1 icon icon-arrow-${focus[0] === unitIdx ? "down" : "right"}`} />
-                            </button>}
-                            <a href="#" className="text-black text-sm dark:text-white"
-                                aria-current={currentLocation.length === 1 && currentLocation[0] === unitIdx ? "page" : "false"}
-                                onClick={e => { e.preventDefault(); e.stopPropagation(); dispatch(curriculum.fetchContent({ location: [unitIdx], url: unit.URL })) }}>{unit.title}
-                            </a>
-                        </div>
-                        <ul>
-                            {focus[0] === unitIdx && unit.chapters &&
-                        unit.chapters.map((ch, chIdx) => <TableOfContentsChapter key={chIdx} {...{ unit, unitIdx, ch, chIdx }} />)}
-                        </ul>
-                    </li>
-                ))}
-            </ul>
-        </>
-    )
-}
-
-const CurriculumHeader = () => {
-    const dispatch = useDispatch()
-
-    return (
-        <div id="curriculum-header" style={{ position: "relative" }}>
-            <TitleBar />
-            <NavigationBar />
-
-            <div onFocus={() => dispatch(curriculum.showResults(true))}
-                onBlur={(e: React.FocusEvent<HTMLDivElement>) => (!e.currentTarget.contains(e.relatedTarget as Node)) && dispatch(curriculum.showResults(false))}>
-                <CurriculumSearchBar />
-                <CurriculumSearchResults />
-            </div>
-        </div>
-    )
-}
-
-const CurriculumSearchBar = () => {
-    const dispatch = useDispatch()
-    const searchText = useSelector(curriculum.selectSearchText)
-    const dispatchSearch = (event: ChangeEvent<HTMLInputElement>) => dispatch(curriculum.setSearchText(event.target.value))
-    const dispatchReset = () => dispatch(curriculum.setSearchText(""))
-    const highlight = useSelector(cai.selectHighlight).zone === "curriculumSearchBar"
-    return <SearchBar {... { searchText, dispatchSearch, dispatchReset, id: "curriculumSearchBar", highlight }} />
-}
-
-const CurriculumSearchResults = () => {
-    const dispatch = useDispatch()
-    const results = useSelector(curriculum.selectSearchResults)
-    const showResults = useSelector(curriculum.selectShowResults) && (results.length > 0)
-    const [resultsRef, resultsStyle] = useHeightLimiter(showResults)
-
-    return showResults
-        ? (
-            <div ref={resultsRef} className="absolute z-50 bg-white w-full border-b border-black bg-white dark:bg-gray-900" style={resultsStyle}>
-                {results.map(result =>
-                    <a key={result.id} href="#" onClick={e => { e.preventDefault(); dispatch(curriculum.fetchContent({ url: result.id })); dispatch(curriculum.showResults(false)) }}>
-                        <div className="px-2.5 py-1 text-sm search-item text-black dark:text-white">{result.title}</div>
-                    </a>)}
-            </div>
-        )
-        : null
-}
 
 export const TitleBar = () => {
     const dispatch = useDispatch()
-    const language = useSelector(appState.selectScriptLanguage)
-    const currentLocale = useSelector(appState.selectLocale)
-    const location = useSelector(curriculum.selectCurrentLocation)
-    const pageTitle = useSelector(curriculum.selectPageTitle)
     const { t } = useTranslation()
-
-    if (FLAGS.SHOW_CAI || FLAGS.SHOW_CHAT) {
-        useEffect(() => {
-            if (!pageTitle?.includes("Loading")) {
-                dispatch(caiThunks.curriculumPage([location, pageTitle]))
-            }
-        }, [location, pageTitle])
-    }
 
     return (
         <div className="flex items-center p-2">
             <div className="ltr:pl-2 ltr:pr-4 rtl:pl-4 rtl:pr-3 font-semibold truncate">
-                <h2>{t("curriculum.title").toLocaleUpperCase()}</h2>
+                <h2>TUTORIAL</h2>
             </div>
             <div>
                 <button
@@ -223,185 +27,133 @@ export const TitleBar = () => {
                     <div className="w-3 h-3 bg-white rounded-full">&nbsp;</div>
                 </button>
             </div>
-            {/* TODO: upgrade to tailwind 3 for rtl modifiers to remove ternary operator */}
-            <div className={currentLocale.direction === "rtl" ? "mr-auto" : "ml-auto"}>
-                <button className="px-2 -my-1 align-middle text-lg" onClick={() => copyURL(language, location)} title={t("curriculum.copyURL")}>
-                    <i className="icon icon-link" />
-                </button>
-                <button className="border-2 -my-1 border-black dark:border-white text-sm px-2.5 rounded-lg font-bold mx-1.5 align-text-bottom"
-                    title={t("ariaDescriptors:curriculum.switchScriptLanguage", { language: language === "python" ? "javascript" : "python" })}
-                    onClick={() => {
-                        const newLanguage = (language === "python" ? "javascript" : "python")
-                        dispatch(appState.setScriptLanguage(newLanguage))
-                    }}>
-                    {language === "python" ? "PY" : "JS"}
-                </button>
-            </div>
         </div>
     )
 }
 
-const CurriculumPane = () => {
+const TutorialContent = () => {
+    const tutorialContent = `
+    <div class="section-container">
+        <h1>Cómo usar EarSketch para crear tu canción</h1>
+        <p>¡Preparemos una canción para incluir en la tarjeta del Día de las Madres!</p>
+        <p>Sigue los siguentes pasos para crear tu canción:</p>
+        <div class="tutorial-section mb-8">
+            <h2>1. Ver el tutorial en video</h2>
+            <p>Primero, ve este corto tutorial para que te familiarices con EarSketch y con el código que vas a estar trabajando.</p>
+            
+            <div class="video-container my-6">
+                <video controls width="100%" poster="/img/video-thumbnail.png">
+                    <source src="https://example.com/tutorial-video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        
+        <div class="tutorial-section my-8">
+            <h2>2. Crea un archivo para tu canción</h2>
+            <p>Haz click en el botón para crear una nueva canción.</p>
+            <p>Al llenar los campos del formulario para crear la canción, utiliza el número de código QR de la tarjeta del Día de las Madres que se te entregó.</p>
+            <p>Es importante que el número sea exactamente igual que el de tu tarjeta. ¡Este número será el ID para tu producto final!</p>
+        </div>
+        
+        <div class="tutorial-section my-8">
+            <h2>3. Modifica la canción provista</h2>
+            <p>Ahora que ya tienes un archivo creado para tu canción, puedes:</p>
+            
+            <ul class="list-disc pl-5 my-4">
+                <li>Oprimir el botón de "Play" para escuchar la canción que resulta del código en el editor de texto</li>
+                <li>Modificar el valor de la variable para cambiar la duración de los sonidos ya incluidos</li>
+                <li>Invocar a la función fitMedia para añadir más sonidos a la canción</li>
+                <li>Modificar el valor de la función setTempo para cambiar el tempo de la canción</li>
+            </ul>
+            
+            <p>¡Experimenta con el código y diviértete! Si tienes dudas, habrá un asistente para ayudarte en todo momento.</p>
+        </div>
+        
+        <div class="tutorial-section my-8">
+            <h2>4. ¿Quieres personalizar tu canción más?</h2>
+            <p>¡Añade un mensaje de voz para que la recipiente de esta tarjeta musical se emocione más!</p>
+            <p>En la sección de sonidos hay un botón para "Añadir sonido". Oprime este botón y en el menú de opciones de la nueva ventana, escoge "GRABACIÓN RÁPIDA". 
+               Tan pronto termines de grabar un mensaje que te guste, oprime el botón de "CARGAR".</p>
+               <p>El sonido que grabaste aparecerá en la lista de sonidos de usuario con el mismo nombre de tu canción.</p>
+               <p>Para incluir tu grabación en la canción, utiliza la función fitMedia con el nombre de tu grabación como argumento de esta manera:</p>
+            
+            <div class="listingblock curriculum-python my-6">
+                <div class="content">
+                    <pre class="highlight" style="overflow-x: auto; max-width: 100%;">
+<code># Añadir mi mensaje de voz en la pista 4, del compás 3 al 5</code>
+<code>fitMedia(nombre_del_archivo, 4, 3, 6)</code></pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tutorial-section my-8 pb-10">
+            <h2>5. Enviar la canción finalizada</h2>
+            <p>Ahora que ya terminaste tu canción, puedes guardarla en la página del evento para que esté disponible para escuchar a través del código QR.</p>
+            <p>Cuando estés list@ para enviar tu canción, haz click en el botón de "Finalizar" en la barra de opciones sobre el editor de texto.</p>
+            
+            <p>¡Felicidades! Has terminado tu canción. Cuando le entregues la tarjeta a mamá, ella podrá escanear el código QR con la cámara del celular y disfrutar de tu creación musical.</p>
+
+            <p>Luego de este evento también puedes continuar experimentando con EarSketch. Prontamente estarás recibiendo un correo electrónico con los enlaces que necesitas para ello.</p>
+            
+            <div class="bg-blue-100 dark:bg-gray-700 p-4 rounded-lg my-6">
+                <p class="font-bold">Tip:</p>
+                <p>¡Cada vez que hagas un cambio en el código, recuerda oprimir el botón de "Ejecutar" para que veas el resultado del cambio inmediatamente y también agarres cualquier error que aparezca en la consola!</p>
+            </div>
+        </div>
+    </div>
+    `
+
+    const content = document.createElement('div')
+    content.innerHTML = tutorialContent
+    return content
+}
+
+const TutorialPane = () => {
     const { t } = useTranslation()
     const language = useSelector(appState.selectScriptLanguage)
     const currentLocale = useSelector(appState.selectLocale)
     const fontSize = useSelector(appState.selectFontSize)
     const theme = useSelector(appState.selectColorTheme)
     const paneIsOpen = useSelector(layout.isEastOpen)
-    const content = useSelector(curriculum.selectContent)
-    const curriculumBody = useRef<HTMLElement>(null)
+    const tutorialContent = TutorialContent()
+    const tutorialBody = useRef<HTMLElement>(null)
 
     useEffect(() => {
-        if (content && curriculumBody.current) {
-            curriculumBody.current.appendChild(content)
-            curriculumBody.current.scrollTop = 0
-            return () => content.remove()
+        if (tutorialContent && tutorialBody.current) {
+            tutorialBody.current.appendChild(tutorialContent)
+            tutorialBody.current.scrollTop = 0
+            return () => tutorialContent.remove()
         }
-    }, [content, paneIsOpen])
-
-    useEffect(() => {
-        // <script> tags in the content may add elements to the DOM,
-        // so we wrap this in a useEffect() and run it after inserting the content.
-        if (content) {
-            // Filter content by language.
-            const p = (language === "python")
-            content.querySelectorAll(".curriculum-python,.copy-btn-python").forEach((e: HTMLElement) => (e.hidden = !p))
-            content.querySelectorAll(".curriculum-javascript,.copy-btn-javascript").forEach((e: HTMLElement) => (e.hidden = p))
-
-            // Apply color theme to code blocks.
-            if (theme === "light") {
-                content.querySelectorAll(".listingblock.curriculum-javascript").forEach((el: HTMLElement) => el.classList.add("default-pygment"))
-                content.querySelectorAll(".listingblock.curriculum-python").forEach((el: HTMLElement) => el.classList.add("default-pygment"))
-            } else {
-                content.querySelectorAll(".listingblock.curriculum-javascript").forEach((el: HTMLElement) => el.classList.remove("default-pygment"))
-                content.querySelectorAll(".listingblock.curriculum-python").forEach((el: HTMLElement) => el.classList.remove("default-pygment"))
-            }
-        }
-    }, [content, language, paneIsOpen])
-
-    useEffect(() => {
-        const frame: HTMLIFrameElement = content?.querySelector("#gmFrame")
-        if (frame) frame.contentWindow!.postMessage({ lang: language }, "*")
-    }, [language])
-
-    // Highlight search text matches found in the curriculum.
-    const hilitor = new Hilitor("curriculum")
-    const searchText = useSelector(curriculum.selectSearchText)
-    hilitor.setMatchType("left")
-    useEffect(() => {
-        hilitor.apply(searchText)
-        return () => hilitor.remove()
-    }, [content, searchText])
+    }, [tutorialContent, paneIsOpen])
 
     return paneIsOpen
         ? (
             <div dir={currentLocale.direction} className={`font-sans h-full flex flex-col bg-white text-black dark:bg-gray-900 dark:text-white ${currentLocale.direction === "rtl" ? "curriculum-rtl" : ""}`}>
-                <CurriculumHeader />
+                <div id="tutorial-header" style={{ position: "relative" }}>
+                    <TitleBar />
+                </div>
 
-                <div id="curriculum" className={theme === "light" ? "curriculum-light" : "dark"} style={{ fontSize }}>
-                    {content
-                        ? <article ref={curriculumBody} id="curriculum-body" className="prose dark:prose-dark px-5 h-full max-w-none overflow-y-auto" style={{ fontSize }} />
-                        : <div className="flex flex-col items-center">
-                            <div className="text-2xl text-center py-8">Loading curriculum...</div>
-                            <div className="animate-spin es-spinner" style={{ width: "90px", height: "90px" }} />
-                        </div>}
+                <div id="tutorial" className={`${theme === "light" ? "curriculum-light" : "dark"} flex-grow overflow-hidden`} style={{ fontSize }}>
+                    <article 
+                        ref={tutorialBody} 
+                        id="tutorial-body" 
+                        className="prose dark:prose-dark px-5 h-full max-w-none overflow-y-auto overflow-x-hidden" 
+                        style={{ fontSize, height: "100%", overflowY: "auto", overflowX: "hidden", width: "100%" }} 
+                    />
                 </div>
             </div>
         )
-        : <Collapsed title={t("curriculum.title").toLocaleUpperCase()} position="east" />
+        : <Collapsed title="TUTORIAL" position="east" />
 }
-
-const NavigationBar = () => {
-    const dispatch = useDispatch()
-    const { t } = useTranslation()
-    const location = useSelector(curriculum.selectCurrentLocation)
-    const toc = useSelector(curriculum.selectTableOfContents)
-    const tocPages = useSelector(curriculum.selectPages)
-    const currentLocale = useSelector(appState.selectLocale)
-
-    const progress = (location[2] === undefined ? 0 : (location[2] + 1) / (toc[location[0]]!.chapters?.[location[1]].sections?.length ?? 1))
-    const showTableOfContents = useSelector(curriculum.selectShowTableOfContents)
-    const pageTitle = useSelector(curriculum.selectPageTitle)
-    const triggerRef = useRef<HTMLButtonElement>(null)
-    const [dropdownRef, tocStyle] = useHeightLimiter(showTableOfContents, "46px")
-
-    const handleClick = (event: Event & { target: HTMLElement }) => {
-        if (!dropdownRef.current?.contains(event.target) && !triggerRef.current?.contains(event.target)) {
-            dispatch(curriculum.showTableOfContents(false))
-        }
-    }
-
-    useEffect(() => {
-        document.addEventListener("mousedown", handleClick)
-        return () => document.removeEventListener("mousedown", handleClick)
-    }, [])
-
-    return (
-        <>
-            <div id="curriculum-navigation" className="w-full flex justify-between items-stretch cursor-pointer select-none text-white bg-blue hover:bg-gray-700">
-                {((location + "") === (tocPages[0] + ""))
-                    ? <span />
-                    : <button aria-label={t("curriculum.previousPage")} className="p-1.5" onClick={() => dispatch(curriculum.fetchContent({ location: curriculum.adjustLocation(tocPages, location, -1) }))} title={t("curriculum.previousPage")}>
-                        <i className={`icon icon-arrow-${currentLocale.direction === "rtl" ? "right2" : "left2"}`} />
-                    </button>}
-                <button ref={triggerRef} className="w-full" title={t("curriculum.showTOC")} onClick={() => dispatch(curriculum.showTableOfContents(!showTableOfContents))}>
-                    <h3 className="text-sm" aria-label={t("curriculum.showTOC")} title={t("curriculum.showTOC")}>
-                        {pageTitle}
-                        <i className="icon icon-arrow-down2 text-xs p-1" />
-                    </h3>
-                </button>
-                {((location + "") === (tocPages[tocPages.length - 1] + ""))
-                    ? <span />
-                    : <button aria-label={t("curriculum.nextPage")} className="p-1.5" onClick={() => dispatch(curriculum.fetchContent({ location: curriculum.adjustLocation(tocPages, location, +1) }))} title={t("curriculum.nextPage")}>
-                        <i className={`icon icon-arrow-${currentLocale.direction === "rtl" ? "left2" : "right2"}`} />
-                    </button>}
-            </div>
-            <div className={`z-50 pointer-events-none absolute w-full px-2 py-1.5 ${showTableOfContents ? "" : "hidden"}`}>
-                <div ref={dropdownRef} style={tocStyle}
-                    className="w-full pointer-events-auto p-2.5 border border-black bg-white dark:bg-black">
-                    <TableOfContents />
-                </div>
-            </div>
-            <div className="w-full" style={{ height: "7px" }}>
-                <div className="h-full" style={{ width: progress * 100 + "%", backgroundColor: "#5872AD" }} />
-            </div>
-        </>
-    )
-}
-
-let initialized = false
 
 export const Curriculum = () => {
     const dispatch = useDispatch()
 
-    if (!initialized) {
-        // Handle URL parameters.
-        const curriculumParam = ESUtils.getURLParameter("curriculum")
+    useEffect(() => {
+        // Open the tutorial pane by default
+        dispatch(layout.setEast({ open: true }))
+    }, [])
 
-        if (curriculumParam !== null) {
-            // check if this value exists in our old locations file first
-            const url = checkLegacyURLs(curriculumParam)
-            if (url !== undefined) {
-                dispatch(curriculum.fetchContent({ url }))
-            } else {
-                dispatch(curriculum.fetchContent({ url: permalinkToURL(curriculumParam) }))
-            }
-        }
-
-        if (curriculumParam === null) {
-            // Load welcome page initially.
-            dispatch(curriculum.fetchContent({ location: [0] }))
-        }
-
-        const languageParam = ESUtils.getURLParameter("language")
-        if (languageParam && ["python", "javascript"].includes(languageParam)) {
-            // If the user has a script open, that language overwrites this one due to ideController
-            // this is probably a bug, but the old curriculumPaneController has the same behavior.
-            dispatch(appState.setScriptLanguage(languageParam))
-        }
-
-        initialized = true
-    }
-
-    return <CurriculumPane />
+    return <TutorialPane />
 }
