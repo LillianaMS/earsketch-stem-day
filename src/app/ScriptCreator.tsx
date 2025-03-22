@@ -9,6 +9,9 @@ import store from "../reducers"
 import { ModalFooter, ModalHeader, ModalBody, Alert } from "../Utils"
 import { set } from "lodash";
 
+// export const STEM_API_ROUTE = "http://localhost:8081/stemday/api"
+export const STEM_API_ROUTE = "http://remoodle.fun:8081/stemday/api"
+
 export function validateScriptName(name: string, extension: string, qrCodeNum: string = "", firstName: string = "") {
     const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
     const scripts = scriptsState.selectRegularScripts(store.getState())
@@ -52,13 +55,13 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
     }
 
     async function registerSong(qrCodeNum: string, firstName: string, lastName: string, email: string ): Promise<void> {
-        const prServerDir = "remoodle.fun/nsf-stem-day/canciones/"
-        const mp3Url = prServerDir + qrCodeNum + ".mp3"
+        const prServerDir = "remoodle.fun/stemday/songs/"
+        const mp3Url = prServerDir + qrCodeNum + "_" + firstName.toLowerCase() + ".mp3"
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
         
         try {
             // After deployment, change the URL to the production server
-            const response = await axios.post("http://localhost:8081/api/registry", { "qrCodeNum": qrCodeNum, "firstName": firstName, "lastName": lastName, "email": email, "scriptName": scriptName, "mp3Url": mp3Url })
+            const response = await axios.post(`${STEM_API_ROUTE}/registry`, { "qrCodeNum": qrCodeNum, "firstName": firstName, "lastName": lastName, "email": email, "scriptName": scriptName, "mp3Url": mp3Url })
             console.log(JSON.stringify(response.data))
         } catch (error) {
             console.error(error)

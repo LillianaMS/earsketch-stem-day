@@ -9,14 +9,13 @@ import * as renderer from "../audio/renderer"
 import * as runner from "./runner"
 import { openModal } from "./modal"
 import { OverwriteConfirm, UploadProgress, UploadSuccess, UploadError } from "./FinalizarModal"
+import { ScriptCreator, STEM_API_ROUTE } from "./ScriptCreator"
 
 // Make a dummy anchor for downloading blobs.
 const dummyAnchor = document.createElement("a")
 document.body.appendChild(dummyAnchor)
 dummyAnchor.style.display = "none"
 
-// URL for the stem-day-app server
-const STEM_DAY_SERVER_URL = "http://localhost:8081/api"
 
 export function download(name: string, blob: Blob) {
     const url = window.URL.createObjectURL(blob)
@@ -76,7 +75,7 @@ export function mp3(script: Script) {
 // Function to check if a file exists on the server
 async function checkFileExists(fileName: string): Promise<boolean> {
     try {
-        const response = await fetch(`${STEM_DAY_SERVER_URL}/check-file-exists`, {
+        const response = await fetch(`${STEM_API_ROUTE}/check-file-exists`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -152,7 +151,7 @@ export async function uploadMp3ToServer(script: Script) {
         })
         
         // Send the file to the server
-        const response = await fetch(`${STEM_DAY_SERVER_URL}/upload-song`, {
+        const response = await fetch(`${STEM_API_ROUTE}/upload-song`, {
             method: 'POST',
             body: formData,
         })
