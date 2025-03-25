@@ -10,7 +10,7 @@ import { ModalFooter, ModalHeader, ModalBody, Alert } from "../Utils"
 import { set } from "lodash";
 
 // export const STEM_API_ROUTE = "http://localhost:8081/stemday/api"
-export const STEM_API_ROUTE = "http://remoodle.fun:8081/stemday/api"
+export const STEM_API_ROUTE = "https://remoodle.fun:8443/stemday/api"
 
 export function validateScriptName(name: string, extension: string, qrCodeNum: string = "", firstName: string = "") {
     const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
