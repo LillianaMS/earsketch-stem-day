@@ -23,21 +23,28 @@ function cleanName(name: string) {
     return name.replace(/\W/g, "").toUpperCase()
 }
 
-function validateUpload(username: string | null, name: string, tempo: number) {
+function validateUpload(username: string | null, name: string, tempo: number, skipNameCheck: boolean = false) {
     if (username === null) {
         throw new Error(i18n.t("messages:uploadcontroller.userAuth"))
     }
     const names = sounds.selectAllNames(store.getState())
     const fullName = username.toUpperCase() + "_" + name
-    if (names.some(k => k === fullName)) {
+    if (!skipNameCheck && names.some(k => k === fullName)) {
         throw new Error(`${name} (${fullName})${i18n.t("messages:uploadcontroller.alreadyused")}`)
     } else if (tempo > 220 || (tempo > -1 && tempo < 45)) {
         throw new Error(i18n.t("messages:esaudio.tempoRange"))
     }
 }
 
-async function uploadFile(username: string | null, file: Blob, name: string, extension: string, tempo: number, onProgress: (frac: number) => void) {
-    validateUpload(username, name, tempo)
+function checkNameExists(username: string | null, name: string): boolean {
+    if (username === null) return false
+    const names = sounds.selectAllNames(store.getState())
+    const fullName = username.toUpperCase() + "_" + name
+    return names.some(k => k === fullName)
+}
+
+async function uploadFile(username: string | null, file: Blob, name: string, extension: string, tempo: number, onProgress: (frac: number) => void, skipNameCheck: boolean = false) {
+    validateUpload(username, name, tempo, skipNameCheck)
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = await audioContext.decodeAudioData(arrayBuffer)
@@ -155,21 +162,29 @@ const RecordTab = ({ close }: { close: () => void }) => {
     const [error, setError] = useState(isMacFirefox ? t("soundUploader.record.firefoxMacError") : "")
     const [progress, setProgress] = useState<number>()
     const [buffer, setBuffer] = useState(null as AudioBuffer | null)
-
-    const [tempo, setTempo] = useState(120)
-    const [metronome, setMetronome] = useState(true)
-    const [click, setClick] = useState(false)
-    const [countoff, setCountoff] = useState(1)
-    const [measures, setMeasures] = useState(2)
+    const [showNameExistsPrompt, setShowNameExistsPrompt] = useState(false)
+    
+    // Get the current script name from active tab
+    const activeTabID = useSelector((state: any) => state.tabs?.activeTabID)
+    const allScripts = useSelector((state: any) => state.scripts ? state.scripts.regularScripts : {})
+    const scriptName = activeTabID && allScripts[activeTabID]?.name ? allScripts[activeTabID].name : "MiCancion"
+    
+    useEffect(() => {
+        // Set default name as scriptname without 'py'
+        if (username) {
+            setName(`${scriptName.replace(/\W/g, "").replace(/py/gi, "").toUpperCase()}`)
+        }
+    }, [username, scriptName])
+    
     const [micReady, setMicReady] = useState(false)
     const [beat, setBeat] = useState(0)
 
     const startRecording = () => {
-        recorder.properties.bpm = tempo
-        recorder.properties.useMetro = metronome
-        recorder.properties.countoff = countoff
-        recorder.properties.numMeasures = measures
-        recorder.startRecording(click)
+        recorder.properties.bpm = 120
+        recorder.properties.useMetro = false
+        recorder.properties.countoff = 1
+        recorder.properties.numMeasures = 2
+        recorder.startRecording(false)
     }
 
     recorder.callbacks.bufferReady = (buffer) => {
@@ -179,11 +194,28 @@ const RecordTab = ({ close }: { close: () => void }) => {
 
     recorder.callbacks.beat = () => setBeat(beat + 1)
 
-    const submit = async () => {
+    const uploadWithOverwrite = async () => {
         try {
             const view = encodeWAV(buffer!.getChannelData(0), audioContext.sampleRate, 1)
             const blob = new Blob([view], { type: "audio/wav" })
-            await uploadFile(username, blob, name, ".wav", metronome ? tempo : 120, setProgress)
+            await uploadFile(username, blob, name, ".wav", 120, setProgress, true)
+            close()
+        } catch (error) {
+            setError(error.message)
+        }
+    }
+
+    const submit = async () => {
+        try {
+            // Check if the name already exists
+            if (checkNameExists(username, name)) {
+                setShowNameExistsPrompt(true)
+                return
+            }
+            
+            const view = encodeWAV(buffer!.getChannelData(0), audioContext.sampleRate, 1)
+            const blob = new Blob([view], { type: "audio/wav" })
+            await uploadFile(username, blob, name, ".wav", 120, setProgress)
             close()
         } catch (error) {
             setError(error.message)
@@ -199,44 +231,39 @@ const RecordTab = ({ close }: { close: () => void }) => {
     return <form onSubmit={e => { e.preventDefault(); submit() }}>
         <ModalBody>
             <Alert message={error}></Alert>
+            {showNameExistsPrompt && (
+                <div className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-4">
+                    <p className="font-bold">¡Atención!</p>
+                    <p>Ya existe una grabación con el nombre "{name}". ¿Quieres sobrescribirla?</p>
+                    <div className="flex justify-end mt-3">
+                        <button
+                            type="button"
+                            className="btn btn-hollow mr-2"
+                            onClick={() => setShowNameExistsPrompt(false)}
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={uploadWithOverwrite}
+                        >
+                            Sobrescribir
+                        </button>
+                    </div>
+                </div>
+            )}
             {!micReady &&
                 (error
                     ? <input type="button" className="btn btn-primary block m-auto" onClick={() => { setError(""); recorder.init() }} value={t("soundUploader.record.mic.reenable") as string} />
                     : t("soundUploader.record.mic.waiting"))}
             {micReady && !isMacFirefox && <div>
                 <div className="modal-section-header">
-                    <span>{t("soundUploader.record.measures.title")}</span>
-                    {metronome &&
-                        <button type="button" className={"btn-hollow btn-filter text-xs" + (click ? " active" : "")} onClick={() => setClick(!click)}>
-                            <span>{t("soundUploader.record.measures.metronomeClick").toLocaleUpperCase()}</span>
-                        </button>}
-                    <button type="button" className={"btn-hollow btn-filter text-xs" + (metronome ? " active" : "")}
-                        onClick={() => setMetronome(!metronome)}>
-                        <span>{t("metronome").toLocaleUpperCase()}</span>
-                    </button>
-                </div>
-                {metronome &&
-                    <div className="modal-section-content" id="count-measures-input">
-                        <label>
-                            {t("soundUploader.record.measures.tempo")}
-                            <input id="tempoSlider" type="range" name="rangeTempo" min={45} max={220} value={tempo} onChange={e => setTempo(+e.target.value)} required={metronome} />
-                            <input type="number" className="form-input ml-2 dark:bg-transparent placeholder:text-gray-300" placeholder="e.g. 120" min={45} max={220} value={tempo} onChange={e => setTempo(+e.target.value)} required={metronome} />
-                        </label>
-                        <label>
-                            {t("soundUploader.record.measures.countoff")}
-                            <input type="number" className="form-input dark:bg-transparent placeholder:text-gray-300" value={countoff} onChange={e => setCountoff(+e.target.value)} required={metronome} />
-                        </label>
-                        <label>
-                            {t("soundUploader.record.measures.toRecord")}
-                            <input type="number" className="form-input dark:bg-transparent placeholder:text-gray-300" value={measures} onChange={e => setMeasures(+e.target.value)} required={metronome} />
-                        </label>
-                    </div>}
-                <div className="modal-section-header">
                     <span>{t("soundUploader.record.prompt")}</span>
                     <LevelMeter />
                 </div>
                 <div className="modal-section-content flex items-center justify-between">
-                    <Metronome beat={beat - countoff * 4} hasBuffer={buffer !== null} useMetro={metronome} startRecording={startRecording} />
+                    <Metronome beat={beat - 4} hasBuffer={buffer !== null} useMetro={false} startRecording={startRecording} />
                     <Waveform buffer={buffer} />
                     {buffer &&
                         <button type="button" id="record-clear-button" className="btn btn-hollow btn-filter" onClick={() => { recorder.clear(); setBuffer(null) }}>
@@ -251,7 +278,7 @@ const RecordTab = ({ close }: { close: () => void }) => {
                 </div>
             </div>}
         </ModalBody>
-        <ModalFooter submit="upload" ready={buffer !== null} progress={progress} close={close} />
+        <ModalFooter submit="upload" ready={buffer !== null && !showNameExistsPrompt} progress={progress} close={close} />
     </form>
 }
 
@@ -390,27 +417,15 @@ const TunepadTab = ({ close }: { close: () => void }) => {
 }
 
 const Tabs = [
-    { component: FileTab, titleKey: "soundUploader.title.upload", icon: "cloud-upload" },
     { component: RecordTab, titleKey: "soundUploader.title.record", icon: "microphone" },
-    { component: FreesoundTab, titleKey: "FREESOUND", icon: "search" },
-    { component: TunepadTab, titleKey: "TUNEPAD", icon: "cloud-upload" },
 ]
 
 export const SoundUploader = ({ close }: { close: () => void }) => {
-    const [activeTab, setActiveTab] = useState(0)
-    const TabBody = Tabs[activeTab].component
+    const TabBody = Tabs[0].component
     const { t } = useTranslation()
 
     return <>
         <ModalHeader>{t("soundUploader.title")}</ModalHeader>
-        <div className="mb-2 bg-blue flex">
-            {Tabs.map(({ titleKey, icon }, index) =>
-                <button key={index} onClick={e => { e.preventDefault(); setActiveTab(index) }} className={"text-sm h-full flex justify-center items-center grow px-1 py-2 w-1/4 cursor-pointer border-b-4 " + (activeTab === index ? "border-b-amber text-amber" : "border-transparent text-white")} style={{ textDecoration: "none" }}>
-                    <i className={`icon icon-${icon} mr-3`}></i>{t(titleKey).toLocaleUpperCase()}
-                </button>
-            )}
-        </div>
         <div id="upload-sound-tabcontainer"><TabBody close={close} /></div>
-
     </>
 }
