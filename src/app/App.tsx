@@ -734,7 +734,8 @@ export const App = () => {
     const changeLanguage = (lng: string) => {
         reporter.localeSelection(lng, false)
         dispatch(appState.setLocaleCode(lng))
-        dispatch(curriculum.fetchLocale({ }))
+        // Skip curriculum loading for STEM Day app
+        // dispatch(curriculum.fetchLocale({ }))
     }
 
     useEffect(() => {

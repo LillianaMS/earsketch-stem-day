@@ -8,7 +8,8 @@ import type { RootState, ThunkAPI, AppDispatch } from "../reducers"
 import { BrowserTabType } from "./BrowserTab"
 import { highlight } from "../ide/highlight"
 
-const CURRICULUM_DIR = "../curriculum"
+// Modified for STEM Day app - use nonexistent directory to prevent loading curriculum
+const CURRICULUM_DIR = "../disabled_curriculum"
 
 // TODO: Make these selectors instead.
 let locationToPage: { [location: string]: number } = {}
@@ -18,7 +19,8 @@ let idx: lunr.Index | null = null
 
 export const callbacks = {
     import: (_: string) => {},
-    redirect: () => {},
+    // Modified for STEM Day app - silence curriculum errors
+    redirect: () => {/* Disabled curriculum redirect messages */},
 }
 
 // Generate sequence of valid locations: [[0], [1,0,0], [1,0,1], ...]

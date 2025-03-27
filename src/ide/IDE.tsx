@@ -460,7 +460,8 @@ export const IDE = ({ closeAllTabs, importScript, shareScript, downloadScript }:
                                             : <span title={t("console:warning")} className="icon-warning2 pr-1" style={{ color: "#e8b33f" }}></span>)}
                                         <span>
                                             {msg.text}{" "}
-                                            {msg.level === "error" && <>
+                                            {/* Disabled error pages for STEM Day app since curriculum is not used */}
+                                            {false && msg.level === "error" && <>
                                                 —{" "}
                                                 <a className="cursor-pointer" onClick={() => {
                                                     dispatch(curriculum.openErrorPage(msg.text))
