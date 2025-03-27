@@ -34,6 +34,7 @@ import reporter from "./reporter"
 import { ScriptAnalysis } from "./ScriptAnalysis"
 import { ScriptHistory } from "./ScriptHistory"
 import { ScriptShare } from "./ScriptShare"
+import { STEM_API_ROUTE } from "./ScriptCreator"
 import * as scriptsState from "../browser/scriptsState"
 import * as scriptsThunks from "../browser/scriptsThunks"
 import { ScriptDropdownMenu } from "../browser/ScriptsMenus"
@@ -325,6 +326,24 @@ async function deleteScript(script: Script) {
         await store.dispatch(scriptsThunks.saveScript({ name: script.name, source: script.source_code })).unwrap()
         await deleteScriptHelper(script.shareid)
         reporter.deleteScript()
+
+        // If this is a STEM day script (name format: qrCodeNum_firstName), remove it from the STEM day database
+        try {
+            const scriptNameParts = script.name.split('_')
+            if (scriptNameParts.length >= 2) {
+                const qrCodeNum = scriptNameParts[0]
+                
+                // Send deletion request to STEM Day API
+                await fetch(`${STEM_API_ROUTE}/registreeOut/${qrCodeNum}`, {
+                    method: 'DELETE'
+                })
+                
+                console.log(`Deleted song with QR code ${qrCodeNum} from STEM Day database`)
+            }
+        } catch (error) {
+            console.error('Error deleting from STEM Day DB:', error)
+            // Continue despite errors - don't block deletion functionality
+        }
 
         store.dispatch(tabThunks.closeDeletedScript(script.shareid))
         store.dispatch(tabs.removeModifiedScript(script.shareid))

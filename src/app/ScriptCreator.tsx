@@ -54,25 +54,61 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
         }
     }
 
-    async function registerSong(qrCodeNum: string, firstName: string, lastName: string, email: string ): Promise<void> {
-        const prServerDir = "remoodle.fun/stemday/songs/"
-        const mp3Url = prServerDir + qrCodeNum + "_" + firstName.toLowerCase() + ".mp3"
+    // Function to check if QR code already exists in the database
+    async function checkQRCodeExists(qrCodeNum: string): Promise<{ exists: boolean, scriptName?: string }> {
+        try {
+            const response = await axios.get(`${STEM_API_ROUTE}/check-qrcode-exists/${qrCodeNum}`)
+            return response.data
+        } catch (error) {
+            console.error("Error checking QR code:", error)
+            return { exists: false }
+        }
+    }
+
+    async function registerSong(qrCodeNum: string, firstName: string, lastName: string, email: string ): Promise<boolean> {
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
         
+        // First check if QR code already exists
+        const checkResult = await checkQRCodeExists(qrCodeNum)
+        if (checkResult.exists) {
+            // QR code already exists, show error
+            setError(`qrCodeAlreadyExists:${checkResult.scriptName}`)
+            return false
+        }
+        
         try {
-            // After deployment, change the URL to the production server
-            const response = await axios.post(`${STEM_API_ROUTE}/registry`, { "qrCodeNum": qrCodeNum, "firstName": firstName, "lastName": lastName, "email": email, "scriptName": scriptName, "mp3Url": mp3Url })
+            // Register without mp3Url - it will be added when the file is uploaded
+            const response = await axios.post(`${STEM_API_ROUTE}/registry`, { 
+                "qrCodeNum": qrCodeNum, 
+                "firstName": firstName, 
+                "lastName": lastName, 
+                "email": email, 
+                "scriptName": scriptName 
+            })
             console.log(JSON.stringify(response.data))
+            return true
         } catch (error) {
             console.error(error)
+            setError("general.serverError")
+            return false
         }
     }
 
     return <>
         <ModalHeader>{t("scriptCreator.title")}</ModalHeader>
-        <form onSubmit={e => { e.preventDefault(); registerSong(qrCodeNum, firstName, lastName, email); confirm() }}>
+        <form onSubmit={async e => { 
+            e.preventDefault();
+            const success = await registerSong(qrCodeNum, firstName, lastName, email);
+            if (success) {
+                confirm();
+            }
+        }}>
             <ModalBody>
-                <Alert message={t(error)}></Alert>
+                {error.startsWith('qrCodeAlreadyExists:') ? (
+                    <Alert message={`Este código QR ya existe en la base de datos con el nombre de script: ${error.split(':')[1]}. Por favor, verifica si el código QR y nombre corresponden con los tuyos.`}></Alert>
+                ) : (
+                    <Alert message={t(error)}></Alert>
+                )}
                 <div className="flex flex-col max-w-md mx-auto">
                     {/* QR Code Number Field */}
                     <div className="mb-4">

@@ -150,7 +150,7 @@ export async function uploadMp3ToServer(script: Script) {
             })
         })
         
-        // Send the file to the server
+        // Send the file to the server and update mp3Url in the DB
         const response = await fetch(`${STEM_API_ROUTE}/upload-song`, {
             method: 'POST',
             body: formData,
