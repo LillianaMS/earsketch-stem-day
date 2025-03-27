@@ -77,13 +77,13 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
         }
         
         try {
-            // Register without mp3Url - it will be added when the file is uploaded
+            // Register song details (mp3Url will be added later when file is uploaded)
             const response = await axios.post(`${STEM_API_ROUTE}/registry`, { 
                 "qrCodeNum": qrCodeNum, 
                 "firstName": firstName, 
                 "lastName": lastName, 
                 "email": email, 
-                "scriptName": scriptName 
+                "scriptName": scriptName
             })
             console.log(JSON.stringify(response.data))
             return true

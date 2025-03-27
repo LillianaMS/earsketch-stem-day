@@ -172,10 +172,6 @@ export const LinkTab = ({ script, close }: TabParameters) => {
     const sharelink = location.origin + location.pathname + "?sharing=" + script.shareid
     const lockedShareLink = location.origin + location.pathname + "?sharing=" + lockedShareID
     const link = lock ? lockedShareLink : sharelink
-    
-    // Use earsketch domain for STEM day app database
-    const earsketchBaseUrl = "https://earsketch.gatech.edu/earsketch2"
-    const earsketchShareLink = earsketchBaseUrl + "/?sharing=" + script.shareid
 
     useEffect(() => {
         scriptsThunks.getLockedSharedScriptId(script.shareid).then(setLockedShareID)
@@ -193,33 +189,6 @@ export const LinkTab = ({ script, close }: TabParameters) => {
     const submit = async () => {
         const users = await finalize.current?.()
         if (!users) return // Bad username in the list.
-        
-        // Send the shareID and shareUrl to the server for STEM day app
-        try {
-            const scriptNameParts = script.name.split('_')
-            if (scriptNameParts.length >= 2) {
-                const qrCodeNum = scriptNameParts[0]
-                const shareID = script.shareid
-                
-                // Send the update to the STEM Day API
-                await fetch(`${STEM_API_ROUTE}/sharing`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        qrCodeNum: qrCodeNum,
-                        shareID: shareID,
-                        shareUrl: earsketchShareLink
-                    })
-                })
-                
-                console.log('Shared song details updated in STEM Day database')
-            }
-        } catch (error) {
-            console.error('Error updating sharing info in STEM Day DB:', error)
-            // Continue despite errors - don't block sharing functionality
-        }
         
         if (users.length) {
             reporter.share()

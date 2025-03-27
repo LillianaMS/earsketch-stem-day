@@ -150,6 +150,10 @@ export async function uploadMp3ToServer(script: Script) {
             })
         })
         
+        // Extract QR code from filename (format is qrCodeNum_firstName.mp3)
+        const fileNameParts = mp3FileName.split('_')
+        const qrCodeNum = fileNameParts[0]
+        
         // Send the file to the server and update mp3Url in the DB
         const response = await fetch(`${STEM_API_ROUTE}/upload-song`, {
             method: 'POST',
@@ -179,6 +183,37 @@ export async function uploadMp3ToServer(script: Script) {
                 errorMessage: data.message || 'Unknown error occurred during upload' 
             })
             throw new Error(data.message || 'Unknown error occurred during upload')
+        }
+        
+        // Now that the file is uploaded successfully, also update the shareID and shareUrl
+        if (qrCodeNum) {
+            try {
+                // Create EarSketch share URL
+                const earsketchBaseUrl = "https://earsketch.gatech.edu/earsketch2"
+                const shareUrl = earsketchBaseUrl + "/?sharing=" + script.shareid
+                
+                // Send sharing information to the server
+                const sharingResponse = await fetch(`${STEM_API_ROUTE}/sharing`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        qrCodeNum: qrCodeNum,
+                        shareID: script.shareid,
+                        shareUrl: shareUrl
+                    })
+                })
+                
+                if (sharingResponse.ok) {
+                    esconsole(`Share details updated for QR code ${qrCodeNum}`, ["debug", "exporter"])
+                } else {
+                    esconsole(`Failed to update share details for QR code ${qrCodeNum}`, ["error", "exporter"])
+                }
+            } catch (shareError) {
+                // Log but don't fail the overall process
+                esconsole(`Error updating share details: ${shareError}`, ["error", "exporter"])
+            }
         }
         
         // Show success modal
