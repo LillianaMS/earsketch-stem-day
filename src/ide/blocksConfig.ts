@@ -1,3 +1,4 @@
+import { get } from "lodash"
 import { APIItem, API_DOC } from "../api/api"
 
 const blockDropdownNumbers = [...Array(15).keys()].map(i => i + 1 + "")
@@ -44,7 +45,13 @@ const blockModeOptions = {
 
 function getSignatures(names: string[]) {
     // TODO: Use Array.flat() when we update our target.
-    const items = names.map(name => API_DOC[name])
+    const items = names.map(name => {
+        // For setEffect and setTempo, only use the first overload option
+        if (name === 'setEffect' || name === 'setTempo') {
+            return [API_DOC[name][0]]; // Return only the first item in the array
+        }
+        return API_DOC[name];
+    })
     // HACK: Droplet inexplicably has some problem with parameters named "type", so we rename them for now.
     return ([] as APIItem[]).concat(...items).map(info => info.signature.replace(", type,", ", effectType,"))
 }
@@ -71,9 +78,10 @@ const pythonMode = {
             color: "purple",
             blocks: [
                 { block: "from earsketch import *" },
-                ...getPythonBlocks(basicFunctions.slice(4, 6)),
+                ...getPythonBlocks(basicFunctions.slice(4,6)),
+                ...getPythonBlocks(basicFunctions.slice(7,8)),
                 // { block: "print \"Hello World!\"" },
-                // { block: "# comment" },
+                { block: "# comment" },
                 // ...getPythonBlocks(basicFunctions.slice(8)),
             ],
         },
@@ -120,21 +128,21 @@ const pythonMode = {
         //         { block: "a % b", wrapperContext: expressionContext },
         //     ],
         // },
-        {
-            name: "Control Flow",
-            color: "orange",
-            blocks: [
-                // { block: "for i in range(0, 10):\n  print 'hello'" },
-                { block: "if a == b:\n  print 'hello'" },
-                // { block: "if a == b:\n  print 'hello'\nelse:\n  print 'bye'" },
-                // { block: "while a < b:\n  print 'hello'" },
-                // { block: "def myFunction():\n  print 'hello'" },
-                // { block: "def myFunction(arg):\n  print arg" },
-                // { block: "myFunction()", wrapperContext: expressionContext },
-                // { block: "myFunction(arg)", wrapperContext: expressionContext },
-                // { block: "return 'hello'" },
-            ],
-        },
+        // {
+        //     name: "Control Flow",
+        //     color: "orange",
+        //     blocks: [
+        //         // { block: "for i in range(0, 10):\n  print 'hello'" },
+        //         { block: "if a == b:\n  print 'hello'" },
+        //         // { block: "if a == b:\n  print 'hello'\nelse:\n  print 'bye'" },
+        //         // { block: "while a < b:\n  print 'hello'" },
+        //         // { block: "def myFunction():\n  print 'hello'" },
+        //         // { block: "def myFunction(arg):\n  print arg" },
+        //         // { block: "myFunction()", wrapperContext: expressionContext },
+        //         // { block: "myFunction(arg)", wrapperContext: expressionContext },
+        //         // { block: "return 'hello'" },
+        //     ],
+        // },
     ],
 }
 
