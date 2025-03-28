@@ -101,7 +101,8 @@ export async function uploadMp3ToServer(script: Script) {
         // Get the filename without extension
         const scriptName = script.name
         // Replace file extension with .mp3
-        const mp3FileName = scriptName.replace(/\.(py|js)$/, '.mp3')
+        const qrCodeFromScriptName = scriptName.split('_')[0]
+        const mp3FileName = qrCodeFromScriptName + '.mp3'
         
         // Check if file already exists
         const fileExists = await checkFileExists(mp3FileName)
@@ -150,9 +151,7 @@ export async function uploadMp3ToServer(script: Script) {
             })
         })
         
-        // Extract QR code from filename (format is qrCodeNum_firstName.mp3)
-        const fileNameParts = mp3FileName.split('_')
-        const qrCodeNum = fileNameParts[0]
+        const qrCodeNum = qrCodeFromScriptName
         
         // Send the file to the server and update mp3Url in the DB
         const response = await fetch(`${STEM_API_ROUTE}/upload-song`, {
