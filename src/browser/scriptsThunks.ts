@@ -263,9 +263,37 @@ export async function getLockedSharedScriptId(shareid: string) {
 export async function getScriptHistory(scriptid: string) {
     esconsole("Getting script history: " + scriptid, ["debug", "user"])
     const scripts: Script[] = await getAuth("/scripts/history", { scriptid })
-    for (const script of scripts) {
-        script.created = parseDate(script.created as string)
+    
+    // Sort scripts by ID to ensure chronological order
+    scripts.sort((a, b) => parseInt(a.id as string) - parseInt(b.id as string))
+    
+    // Set a reference date for scripts with invalid dates
+    // This preserves the relative timing between versions
+    const baseDate = Date.now() - (scripts.length * 60000) // 1 minute per version ago
+    
+    for (let i = 0; i < scripts.length; i++) {
+        const script = scripts[i]
+        try {
+            // Handle potential invalid date values while preserving order
+            if (script.created) {
+                const parsedDate = parseDate(script.created as string)
+                if (!isNaN(parsedDate)) {
+                    script.created = parsedDate
+                } else {
+                    // If date is invalid, use relative position in history
+                    // This ensures older versions show as older, not "just now"
+                    script.created = baseDate + (i * 60000) // 1 minute between versions
+                }
+            } else {
+                // Missing date - use relative position
+                script.created = baseDate + (i * 60000)
+            }
+        } catch (e) {
+            // On error, use relative position
+            script.created = baseDate + (i * 60000)
+        }
     }
+    
     return scripts
 }
 

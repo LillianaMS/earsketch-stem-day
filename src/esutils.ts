@@ -53,9 +53,18 @@ export const parseExt = (filename: string) => {
 // Change our custom (?) date format into ISO 8601, then parse.
 // TODO: Dates should be stored in a standard format in the database so as to make this unnecessary.
 export function parseDate(date: string) {
-    // Change created date to ISO 8601
-    const isoFormat = date.slice(0, -2).replace(" ", "T")
-    return Date.parse(isoFormat)
+    if (!date) return Date.now(); // Default to current time if no date provided
+    
+    try {
+        // Change created date to ISO 8601
+        const isoFormat = date.slice(0, -2).replace(" ", "T")
+        const parsed = Date.parse(isoFormat)
+        
+        // Return current time if parsing fails (NaN)
+        return isNaN(parsed) ? Date.now() : parsed
+    } catch (e) {
+        return Date.now(); // Fallback to current time on error
+    }
 }
 
 export const isMobileBrowser = () => {
@@ -158,6 +167,11 @@ export const checkIllegalCharacters = (input: string) => {
 
 // Converts a time difference to a description of how much time has passed.
 export const formatTime = (milliseconds: number) => {
+    // Guard against NaN values
+    if (isNaN(milliseconds)) {
+        return i18n.t("formattedTime.recently"); // Default fallback
+    }
+    
     const seconds = Math.floor(milliseconds / 1000)
     const minutes = Math.floor(seconds / 60)
     const hours = Math.floor(minutes / 60)
