@@ -1184,7 +1184,7 @@
     }
   },
   "templates": {
-    "python": "# description: \nfrom earsketch import *\n\nsetTempo(100)\n\nlastMeasure = 9\n\nfitMedia(YG_POP_PERC_2, 1, 1, lastMeasure)\nfitMedia(IRCA_SALSA_4_KEYS_2, 2, 2.05, lastMeasure)",
+    "python": "# descripción: \nfrom earsketch import *\n\nsetTempo(100)\n\nlastMeasure = 9\n\nfitMedia(IRCA_BOMBA_CONJUNTOS_SICA, 1, 1, lastMeasure)\nfitMedia(IRCA_BOMBA_SICA_BAJO_1, 3, 1, lastMeasure)\nfitMedia(IRCA_BOMBA_SICA_PRIMO_1, 2, 1, lastMeasure)",
     "javascript": "// description: \nsetTempo(120);\n"
   },
   "console": {

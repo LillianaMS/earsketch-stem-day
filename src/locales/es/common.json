@@ -798,7 +798,7 @@
     }
   },
   "templates": {
-    "python": "# descripción: \nfrom earsketch import *\n\nsetTempo(100)\n\ncompasFinal = 9\n\nfitMedia(YG_POP_PERC_2, 1, 1, compasFinal)\nfitMedia(IRCA_SALSA_4_KEYS_2, 2, 2.05, compasFinal)",
+    "python": "# descripción: \nfrom earsketch import *\n\nsetTempo(100)\n\ncompasFinal = 9\n\nfitMedia(IRCA_BOMBA_CONJUNTOS_SICA, 1, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_BAJO_1, 3, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_PRIMO_1, 2, 1, compasFinal)",
     "javascript": "// descripción: \nsetTempo(120);\n"
   }
 }
