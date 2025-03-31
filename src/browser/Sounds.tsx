@@ -637,11 +637,12 @@ const DefaultSoundCollection = () => {
         [userFolder]: namesByFolders[userFolder] || []
     };
     
-    folders = ["BOMBA PUERTORRIQUEÑA", "POP", "SALSA", ...folders.filter(folder => folder === userFolder)]
+    folders = ["BOMBA PUERTORRIQUEÑA", "POP", "R&B", ...folders.filter(folder => folder === userFolder)]
     namesByFolders = {
-        "BOMBA PUERTORRIQUEÑA": ["IRCA_BOMBA_CONJUNTOS_SICA", "IRCA_BOMBA_SICA_MARACA", "IRCA_BOMBA_SICA_PRIMO_1", "IRCA_BOMBA_SICA_ELEC_PIANO"],
-        "POP": ["YG_POP_SNARE_7", "YG_POP_PERC_2", "Y36_SYNTH_HARP_1", "YG_POP_MELODY_9"], 
-        "SALSA": ["IRCA_SALSA_4_KEYS_1", "IRCA_SALSA_4_KEYS_2", "IRCA_SALSA_4_BASS_2", "IRCA_SALSA_PERC_GUIRO"],
+        "BOMBA PUERTORRIQUEÑA": ["IRCA_BOMBA_SICA_MARACA", "IRCA_BOMBA_CONJUNTOS_SICA", "IRCA_BOMBA_SICA_PRIMO_1", "IRCA_BOMBA_SICA_BAJO_1", "IRCA_BOMBA_SICA_ELEC_PIANO"],
+        "POP": ["YG_POP_SNARE_7", "RD_POP_MAINBEAT_7", "RD_POP_SYNTHBASS_7", "YG_POP_GUITAR_5", "YG_POP_MELODY_9"],
+        "R&B": ["KHALID_NORM_DRUMBEAT", "RD_RNB_KEYSRHODES_3", "RD_RNB_JUPITERPAD_3", "RD_RNB_PIANO_1", "RD_RNB_ACOUSTIC_NYLONSTRING_3"], 
+        
         ...filteredNamesByFolders
     }
 
