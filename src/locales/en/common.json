@@ -89,6 +89,13 @@
     "daw.tooltip.toggleEffects": "Toggle All Effects",
     "daw.bypass": "Bypass",
     "daw.needsSync": "Run the script to sync the DAW",
+    "finalize.buttonLabel": "Submit",
+    "finalize.loadingState": "Submitting song...",
+    "fileAlreadyExists": {
+      "message": "The file {{fileName}} already exists.",
+      "confirmOverwrite": "Do you want to overwrite it?",
+      "overwrite": "Overwrite"
+    },
     "newScript": "New script",
     "editor.title": "Code Editor",
     "editor.blocksMode": "Blocks Mode",

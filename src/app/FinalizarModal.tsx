@@ -16,12 +16,12 @@ export const OverwriteConfirm = ({
         <ModalHeader>{t("confirm")}</ModalHeader>
         <form onSubmit={e => { e.preventDefault(); close(true) }}>
             <ModalBody>
-                <p>The file <strong>{fileName}</strong> already exists.</p>
-                <p>Do you want to overwrite it?</p>
+                <p>{t("fileAlreadyExists.message", { fileName })}</p>
+                <p>{t("fileAlreadyExists.confirmOverwrite")}</p>
             </ModalBody>
             <ModalFooter 
-                submit="Overwrite" 
-                cancel="Cancel" 
+                submit={t("fileAlreadyExists.overwrite")} 
+                cancel={t("cancel")} 
                 type="danger" 
                 close={() => close(false)} 
             />

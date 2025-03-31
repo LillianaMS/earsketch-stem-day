@@ -192,18 +192,18 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
                             save('finalizar')
                         }}
                         disabled={loading.finalizar}
-                        title="Finalizar"
-                        aria-label="Finalizar"
+                        title={t("finalize.buttonLabel")}
+                        aria-label={t("finalize.buttonLabel")}
                     >
                         {loading.finalizar ? (
                             <>
                                 <div className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2"></div>
-                                FINALIZANDO...
+                                {t("finalize.loadingState").toLocaleUpperCase()}
                             </>
                         ) : (
                             <>
                                 <i className="icon-music pr-2" />
-                                FINALIZAR
+                                {t("finalize.buttonLabel").toLocaleUpperCase()}
                             </>
                         )}
                     </button>

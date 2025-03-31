@@ -59,6 +59,13 @@
     "daw.abbreviation.mute": "M",
     "daw.tooltip.toggleEffects": "Aplicar/quitar todos los efectos",
     "daw.bypass": "Bypass",
+    "finalize.buttonLabel": "Enviar",
+    "finalize.loadingState": "Enviando canción...",
+    "fileAlreadyExists": {
+    "message": "El archivo {{fileName}} ya existe.",
+    "confirmOverwrite": "¿Quieres sobrescribirlo?",
+    "overwrite": "Sobrescribir"
+  },
     "newScript": "Nuevo script",
     "editor.title": "Editor de código",
     "editor.blocksMode": "Modo de bloque",
