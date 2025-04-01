@@ -436,10 +436,10 @@ export const IDE = ({ closeAllTabs, importScript, shareScript, downloadScript }:
                                     <a href="#" onClick={e => { e.preventDefault(); createScript() }}>{t("editor.clickHereCreateScript")}</a>
                                 </div>
 
-                                <div className="leading-relaxed empty-script-lang-message">
+                                {/* <div className="leading-relaxed empty-script-lang-message">
                                     <p>{parse(t("editor.mode", { scriptlang: scriptLang }))}</p>
                                     <p>{parse(t("editor.ifYouWant", { scriptLang, otherScriptLang, otherScriptExt }))}</p>
-                                </div>
+                                </div> */}
                             </div>}
                             <iframe id="ifmcontentstoprint" className="h-0 w-0 invisible absolute"></iframe>
                         </div>
