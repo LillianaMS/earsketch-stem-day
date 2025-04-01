@@ -805,7 +805,7 @@
     }
   },
   "templates": {
-    "python": "# descripción: \nfrom earsketch import *\n\nsetTempo(100)\n\ncompasFinal = 9\n\nfitMedia(IRCA_BOMBA_CONJUNTOS_SICA, 1, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_BAJO_1, 3, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_PRIMO_1, 2, 1, compasFinal)",
+    "python": "# descripción: Canción para tarjeta del Día de las Madres, creada por \n\nfrom earsketch import *\n\nsetTempo(100)\n\ncompasFinal = 9\n\nfitMedia(IRCA_BOMBA_CONJUNTOS_SICA, 1, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_BAJO_1, 2, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_PRIMO_1, 3, 1, compasFinal)\nfitMedia(IRCA_BOMBA_SICA_ELEC_PIANO, 4, 5, compasFinal)\n\nmiGrabacion = USUARIOSTEM1_1009_LILLIANA\n\ninsertMedia(miGrabacion, 5, 1)\nsetEffect(5, VOLUME, GAIN, 5)\n\nsetEffect(MIX_TRACK, VOLUME, GAIN, 0, compasFinal-1, -30, compasFinal)",
     "javascript": "// descripción: \nsetTempo(120);\n"
   }
 }
