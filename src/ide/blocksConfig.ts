@@ -80,6 +80,7 @@ const pythonMode = {
                 { block: "from earsketch import *" },
                 ...getPythonBlocks(basicFunctions.slice(4,6)),
                 ...getPythonBlocks(basicFunctions.slice(7,8)),
+                ...getPythonBlocks(basicFunctions.slice(9,10)),
                 // { block: "print \"Hello World!\"" },
                 { block: "# comment" },
                 // ...getPythonBlocks(basicFunctions.slice(8)),
