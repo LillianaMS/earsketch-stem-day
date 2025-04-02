@@ -120,6 +120,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                                 className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
                                 autoFocus 
                                 autoComplete="off"
+                                required
                                 name={t("scriptCreator.qrCodeNum")} 
                                 id="qrCodeNum" 
                                 placeholder={t("scriptCreator.qrCodeNum.placeholder")}
@@ -140,6 +141,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                             <input 
                                 className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
                                 autoComplete="off"
+                                required
                                 name={t("scriptCreator.firstName")} 
                                 id="firstName" 
                                 placeholder={t("scriptCreator.firstName.placeholder")}
@@ -160,6 +162,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                             <input 
                                 className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
                                 autoComplete="off"
+                                required
                                 name={t("scriptCreator.lastName")} 
                                 id="lastName" 
                                 placeholder={t("scriptCreator.lastName.placeholder")}
@@ -180,6 +183,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                             <input 
                                 className="form-input w-full dark:bg-transparent placeholder:text-gray-300" 
                                 autoComplete="off"
+                                required
                                 name={t("scriptCreator.email")} 
                                 id="email" 
                                 placeholder={t("scriptCreator.email.placeholder")}
