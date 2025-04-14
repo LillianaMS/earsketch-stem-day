@@ -27,6 +27,10 @@ import store, { persistor } from "./reducers"
 
 import { Autograder } from "./app/Autograder"
 import { CodeAnalyzer } from "./app/CodeAnalyzer"
+import { initQRCodeSet } from "./app/ScriptCreator"
+
+// Initialize the QR code set when the application starts
+initQRCodeSet();
 
 // For Droplet:
 import * as ace from "ace-builds"

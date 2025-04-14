@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useSelector } from "react-redux"
 import axios from "axios";
@@ -11,6 +11,64 @@ import { set } from "lodash";
 
 // export const STEM_API_ROUTE = "http://localhost:8081/stemday/api"
 export const STEM_API_ROUTE = "https://remoodle.fun:8443/stemday/api"
+
+// Global QR code set that will be initialized once when the app loads
+export let QR_CODE_SET: Set<string> = new Set<string>();
+
+// Function to load QR code numbers from CSV file and create a Set for validation
+export async function loadQRCodeSet(): Promise<Set<string>> {
+    try {
+        console.log("Attempting to load QR codes from CSV...");
+        const response = await fetch('/codes03.csv');
+        
+        if (!response.ok) {
+            console.error(`Failed to load CSV: ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to load CSV: ${response.status} ${response.statusText}`);
+        }
+        
+        const text = await response.text();
+        const lines = text.split('\n');
+        
+        const qrCodeSet = new Set<string>();
+        
+        // Skip header if exists and process each line
+        for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            // Split by comma and get the second column (QR code)
+            const columns = line.split(',');
+            if (columns.length >= 2) {
+                const qrCode = columns[1].trim();
+                if (qrCode) {
+                    qrCodeSet.add(qrCode);
+                }
+            }
+        }
+        
+        console.log(`Successfully loaded ${qrCodeSet.size} QR codes`);
+        // Update the global QR code set
+        QR_CODE_SET = qrCodeSet;
+        return qrCodeSet;
+    } catch (error) {
+        console.error("Error loading QR codes from CSV:", error);
+        // Return empty set on error
+        return new Set<string>();
+    }
+}
+
+// Function to initialize the QR code set - call this when the app loads
+export async function initQRCodeSet(): Promise<void> {
+    if (QR_CODE_SET.size === 0) {
+        console.log("Initializing QR code set...");
+        await loadQRCodeSet();
+        console.log(`QR code set initialized with ${QR_CODE_SET.size} codes`);
+    }
+}
+
+// Function to validate if a QR code exists in the set
+export function validateQRCode(qrCode: string, qrCodeSet: Set<string> = QR_CODE_SET): boolean {
+    return qrCodeSet.has(qrCode);
+}
 
 export function validateScriptName(name: string, extension: string, qrCodeNum: string = "", firstName: string = "") {
     const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
@@ -46,6 +104,13 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
     const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
     
+    // Ensure QR codes are loaded if they haven't been already
+    useEffect(() => {
+        if (QR_CODE_SET.size === 0) {
+            initQRCodeSet();
+        }
+    }, []);
+    
     const confirm = () => {
         try {
             close(validateScriptName("", extension, qrCodeNum, firstName))
@@ -68,7 +133,13 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
     async function registerSong(qrCodeNum: string, firstName: string, lastName: string, email: string ): Promise<boolean> {
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
         
-        // First check if QR code already exists
+        // First validate QR code against our CSV file using the global QR code set
+        if (!validateQRCode(qrCodeNum)) {
+            setError("qrCodeNotValid")
+            return false
+        }
+        
+        // Then check if QR code already exists in the database
         const checkResult = await checkQRCodeExists(qrCodeNum)
         if (checkResult.exists) {
             // QR code already exists, show error
@@ -106,6 +177,8 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
             <ModalBody>
                 {error.startsWith('qrCodeAlreadyExists:') ? (
                     <Alert message={`Este código QR ya existe en la base de datos con el nombre de script: ${error.split(':')[1]}. Por favor, verifica si el código QR y nombre corresponden con los tuyos.`}></Alert>
+                ) : error === "qrCodeNotValid" ? (
+                    <Alert message={`El código QR ingresado no es válido. Por favor, verifica que has ingresado el código correcto.`}></Alert>
                 ) : (
                     <Alert message={t(error)}></Alert>
                 )}
@@ -113,7 +186,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                     {/* QR Code Number Field */}
                     <div className="mb-4">
                         <label className="block mb-2" htmlFor="qrCodeNum">
-                            {t("scriptCreator.qrCodeNum")}
+                            {t("scriptCreator.qrCodeNum")} <span className="text-sm">(Ingrese letras en MAYÚSCULAS)</span>
                         </label>
                         <div className="relative">
                             <input 
@@ -127,7 +200,7 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
                                 title={t("scriptCreator.qrCodeNum")} 
                                 aria-label={t("scriptCreator.qrCodeNum")}
                                 value={qrCodeNum} 
-                                onChange={e => setQrCodeNum(e.target.value)} 
+                                onChange={e => setQrCodeNum(e.target.value.toUpperCase())} 
                             />
                         </div>
                     </div>
