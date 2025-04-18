@@ -37,51 +37,79 @@ const TutorialContent = () => {
         <h1>Cómo usar EarSketch para crear tu canción</h1>
         <p>¡Preparemos una canción para incluir en la tarjeta del Día de las Madres!</p>
         <p>Sigue los siguentes pasos para crear tu canción:</p>
-        <div class="tutorial-section mb-8">
-            <h2>Ver el tutorial en video</h2>
-            <p>Primero, ve este corto tutorial para que te familiarices con EarSketch y con el código que vas a estar trabajando.</p>
-            
+        <div class="tutorial-section my-8">
+            <h2>Paso 1. Crea un nuevo script</h2>
             <div class="video-container my-6">
                 <iframe 
                     width="100%" 
                     height="315" 
-                    src="https://www.youtube.com/embed/iT7W8Ukz7oE?si=kVtfApAoTzib-OzX" 
+                    src="https://www.youtube.com/embed/M3euDpgsQBI?si=D1BsHW75V-rMMmS5" 
                     title="Tutorial de EarSketch" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
                     allowfullscreen="true"
                 ></iframe>
             </div>
-        </div>
-        
-        <div class="tutorial-section my-8">
-            <h2>Paso 1. Crea un nuevo script</h2>
-            <p>Haz click en el botón para crear una nueva canción.</p>
-            <p>Al llenar los campos del formulario para crear la canción, utiliza el número de código QR de la tarjeta del Día de las Madres que se te entregó.</p>
-            <p>Es importante que el número sea exactamente igual que el de tu tarjeta. ¡Este número será el ID para tu producto final!</p>
+
+            <p>Resumen del Paso 1:</p>
+            <ul class="list-disc pl-5 my-4">
+                <li>Presiona el enlace que dice "Haz click aquí para crear un nuevo script."</li>
+                <li>Al llenar los campos del formulario para crear la canción, utiliza el número de código QR de la tarjeta del Día de las Madres que se te entregó.</li>
+                <li>Es importante que el número de código QR sea exactamente igual que el de tu tarjeta. ¡Este número será el ID para tu producto final!</li>
+                <li>Al finalizar el formulario, se abrirá una nueva ventana con el editor de código de EarSketch, el cual contiene código que genera una canción que modificarás a tu gusto.</li>
+                <li>Presióna el botón de "Ejecutar" para que veas la música que se creó con el código.</li>
+                <li>Oprime el botón de PLAY en la Estación de Audio Digital (DAW) para escuchar la canción.</li>
+            </ul>
         </div>
         
         <div class="tutorial-section my-8">
             <h2>Paso 2. Modificar sonidos de la canción</h2>
+            <div class="video-container my-6">
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/rXzRqzot1uc?si=0zcdSLlIWQVI-Xif" 
+                    title="Tutorial de EarSketch" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen="true"
+                ></iframe>
+            </div>
+            <p>Resumen del Paso 2:</p>
             <p>Ahora que ya tienes un archivo creado para tu canción, puedes:</p>
             
             <ul class="list-disc pl-5 my-4">
-                <li>Oprimir el botón de "Play" para escuchar la canción que resulta del código en el editor de texto.</li>
-                <li>Modificar los nombres de los sonidos dentro de la función fitMedia.</li>
-                <li>Presionar "EJECUTAR" después de cada modificación para que escuches el cambio.</li>
+                <li>Explorar los sonidos que hay en la biblioteca de EarSketch.</li>
+                <li>Modificar los nombres de sonidos dentro de la función fitMedia en el código de tu canción.</li>
+                <li>Presionar "EJECUTAR" después de cada modificación para que escuches cómo cambió la canción con la modificación del código.</li>
             </ul>
             
             <p>¡Experimenta con el código y diviértete! Si tienes dudas, habrá un asistente para ayudarte en todo momento.</p>
+            <div class="bg-blue-100 dark:bg-gray-700 p-4 rounded-lg my-6">
+                <p class="font-bold">Recordatorio:</p>
+                <p>¡Cada vez que hagas un cambio en el código, recuerda oprimir el botón de "Ejecutar" para que veas el resultado del cambio inmediatamente y también agarres cualquier error que aparezca en la consola!</p>
+            </div>
         </div>
         
         <div class="tutorial-section my-8">
             <h2>Paso 3. Añadir un mensaje de voz para mamá</h2>
-            <p>¡Añade un mensaje de voz para que la recipiente de esta tarjeta musical se emocione más!</p>
-            <p>En la sección de sonidos hay un botón para "Añadir sonido". Oprime este botón y en el menú de opciones de la nueva ventana, escoge "GRABACIÓN RÁPIDA". 
-               Tan pronto termines de grabar un mensaje que te guste, oprime el botón de "CARGAR".</p>
-               <p>El sonido que grabaste aparecerá en la lista de sonidos de usuario con el mismo nombre de tu canción.</p>
-               <p>Para incluir tu grabación en la canción, utiliza la función insertMedia con el nombre de tu grabación como argumento de esta manera:</p>
-            
+            <div class="video-container my-6">
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/ZrCNJpvMpVM?si=BX8Fc0hme4pGUC7s" 
+                    title="Tutorial de EarSketch" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen="true"
+                ></iframe>
+            </div>
+            <p>Resumen del Paso 3:</p>
+            <ul class="list-disc pl-5 my-4">
+                <li>En la sección de sonidos hay un botón para "Añadir sonido". Oprime este botón para grabar tu mensaje personalizado para mamá.</li>
+                <li>El sonido que grabaste aparecerá en la lista de sonidos de usuario con el mismo nombre de tu canción.</li>
+                <li>
+                    <p>Para incluir tu grabación en la canción, utiliza la función insertMedia con el nombre de tu grabación como argumento de esta manera:</p>
             <div class="listingblock curriculum-python my-6">
                 <div class="content">
                     <pre class="highlight" style="overflow-x: auto; max-width: 100%;">
@@ -89,31 +117,78 @@ const TutorialContent = () => {
 <code>insertMedia(nombre_del_archivo, 5, 1)</code></pre>
                 </div>
             </div>
+                </li>
+            </ul>
+            
         </div>
 
         <div class="tutorial-section my-8">
             <h2>Paso 4. Cambiar la duración de la canción</h2>
-            <p>Juega con el valor dentro de la variable "fin" para que veas cómo cambia la duración de tu canción.</p>
+            <div class="video-container my-6">
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/dr23KqdERuU?si=34gfHoL3bQoJ4q9u" 
+                    title="Tutorial de EarSketch" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen="true"
+                ></iframe>
+            </div>
+            <p>Resumen del Paso 4:</p>            
+            <ul class="list-disc pl-5 my-4">
+                <li>Dentro de la variable "fin" (en la línea 7 del código) hay un valor numérico guardado.</li>
+                <li>Ese valor numérico define cuánto dura la canción.</li>
+                <li>Juega con ese número para modificar la duración de tu canción.</li>
+            </ul>
         </div>
 
         <div class="tutorial-section my-8">
             <h2>Paso 5. Cambiar el tempo de la canción</h2>
-            <p>Juega con el valor dentro de la función setTempo para que veas cómo cambia la velocidad de tu canción.</p>
+            <div class="video-container my-6">
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/zunBCafN8_g?si=nXFBQq4pZCVR5Wrf" 
+                    title="Tutorial de EarSketch" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen="true"
+                ></iframe>
+            </div>
+            <p>Resumen del Paso 5:</p>            
+            <ul class="list-disc pl-5 my-4">
+                <li>La función setTempo() en la línea 5, define la velocidad de la canción.</li>
+                <li>Juega con el valor numérico dentro de los paréntesis de la función para cambiar la velocidad en la que se escucha tu canción.</li>
+                <li>Mientras más bajito el número, más lenta sonará la música, y mientras más alto, más rápida se escuchará.</li>
+                <li>Rango de valores permitidos para la función setTempo(): 45 al 220</li>
+            </ul>
         </div>
         
         <div class="tutorial-section my-8">
             <h2>Paso 6. Revisar y enviar canción</h2>
-            <p>Ahora que ya terminaste tu canción, puedes guardarla en la página del evento para que esté disponible para escuchar a través del código QR.</p>
-            <p>Escucha una vez más la canción, y si estás list@ para enviarla, haz click en el botón de "Finalizar" en la barra de opciones sobre el editor de texto.</p>
-            
-            <p>¡Felicidades! Has terminado tu canción. Cuando le entregues la tarjeta a mamá, ella podrá escanear el código QR con la cámara del celular y disfrutar de tu creación musical.</p>
-
-            <p>Luego de este evento también puedes continuar experimentando con EarSketch. Prontamente estarás recibiendo un correo electrónico con los enlaces que necesitas para ello.</p>
-            
-            <div class="bg-blue-100 dark:bg-gray-700 p-4 rounded-lg my-6">
-                <p class="font-bold">Recordatorio:</p>
-                <p>¡Cada vez que hagas un cambio en el código, recuerda oprimir el botón de "Ejecutar" para que veas el resultado del cambio inmediatamente y también agarres cualquier error que aparezca en la consola!</p>
+            <div class="video-container my-6">
+                <iframe 
+                    width="100%" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/vG2lEuxT7LU?si=TNbeHm4jEz-LUpA7" 
+                    title="Tutorial de EarSketch" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
+                    allowfullscreen="true"
+                ></iframe>
             </div>
+            <p>Resumen del Paso 6:</p>            
+            <ul class="list-disc pl-5 my-4">
+                <li>Escucha una vez más la canción, y si estás list@ para enviarla, haz click en el botón de "Finalizar" en la barra de opciones sobre el editor de código.</li>
+                <li>Al enviar la canción, aparecerá un mensaje con un enlace a un corto cuestionario para que nos dejes saber qué te pareció la actividad.</li>
+            </ul>
+        </div>
+        <div class="tutorial-section my-8">
+            <h2>¡Felicidades! Has terminado tu canción.</h2>
+            <p>Cuando le entregues la tarjeta a mamá, ella podrá escanear el código QR con la cámara del celular y disfrutar de tu regalo musical.</p>
+            <p>¡Esperamos que hayas disfrutado de esta experiencia!</p>
+            <p>Luego del evento también puedes continuar experimentando con EarSketch. 😎🎵 Prontamente estarás recibiendo un correo electrónico con los enlaces que necesitas para ello.</p>
         </div>
     </div>
     `
