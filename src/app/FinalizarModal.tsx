@@ -2,6 +2,29 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { ModalHeader, ModalBody, ModalFooter } from "../Utils"
 
+// Confirmation Dialog for finalizing submission
+export const FinalizarConfirm = ({ 
+    close 
+}: { 
+    close: (confirmed: boolean) => void 
+}) => {
+    const { t } = useTranslation()
+    
+    return <>
+        <ModalHeader>{t("confirm")}</ModalHeader>
+        <form onSubmit={e => { e.preventDefault(); close(true) }}>
+            <ModalBody>
+                <p>{t("finalize.confirmMessage")}</p>
+            </ModalBody>
+            <ModalFooter 
+                submit={t("finalize.buttonLabel")} 
+                cancel={t("cancel")}  
+                close={() => close(false)} 
+            />
+        </form>
+    </>
+}
+
 // Confirmation Dialog for overwriting files
 export const OverwriteConfirm = ({ 
     fileName, 
@@ -17,7 +40,6 @@ export const OverwriteConfirm = ({
         <form onSubmit={e => { e.preventDefault(); close(true) }}>
             <ModalBody>
                 <p>{t("fileAlreadyExists.message", { fileName })}</p>
-                <p>{t("fileAlreadyExists.confirmOverwrite")}</p>
             </ModalBody>
             <ModalFooter 
                 submit={t("fileAlreadyExists.overwrite")} 

@@ -61,9 +61,9 @@
     "daw.bypass": "Bypass",
     "finalize.buttonLabel": "Enviar",
     "finalize.loadingState": "Enviando canción...",
+    "finalize.confirmMessage": "Esta acción va a guardar tu canción en nuestros records. ¿Quieres continuar?",
     "fileAlreadyExists": {
-    "message": "El archivo {{fileName}} ya existe.",
-    "confirmOverwrite": "¿Quieres sobrescribirlo?",
+    "message": "La canción ya existe en nuestros records. ¿Quieres sobrescribirla?",
     "overwrite": "Sobrescribir"
   },
     "newScript": "Nuevo script",

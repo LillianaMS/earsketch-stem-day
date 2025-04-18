@@ -189,7 +189,8 @@ export const EditorHeader = ({ running, run, cancel, shareScript }: {
                                 flex items-center
                             `}
                         onClick={() => {
-                            save('finalizar')
+                            // Directly call the save function which will handle all confirmations
+                            save('finalizar');
                         }}
                         disabled={loading.finalizar}
                         title={t("finalize.buttonLabel")}

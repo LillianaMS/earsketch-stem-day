@@ -8,7 +8,7 @@ import * as ESUtils from "../esutils"
 import * as renderer from "../audio/renderer"
 import * as runner from "./runner"
 import { openModal } from "./modal"
-import { OverwriteConfirm, UploadProgress, UploadSuccess, UploadError } from "./FinalizarModal"
+import { FinalizarConfirm, OverwriteConfirm, UploadProgress, UploadSuccess, UploadError } from "./FinalizarModal"
 import { ScriptCreator, STEM_API_ROUTE } from "./ScriptCreator"
 
 // Make a dummy anchor for downloading blobs.
@@ -103,6 +103,14 @@ export async function uploadMp3ToServer(script: Script) {
         // Replace file extension with .mp3
         const qrCodeFromScriptName = scriptName.split('_')[0]
         const mp3FileName = qrCodeFromScriptName + '.mp3'
+        
+        // First ask for confirmation using FinalizarConfirm
+        const confirmSubmit = await openModal(FinalizarConfirm)
+        
+        if (!confirmSubmit) {
+            esconsole("Upload cancelled by user", ["debug", "exporter"])
+            throw new Error("Upload cancelled")
+        }
         
         // Check if file already exists
         const fileExists = await checkFileExists(mp3FileName)
