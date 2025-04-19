@@ -93,7 +93,7 @@
     "finalize.loadingState": "Submitting song...",
     "finalize.confirmMessage": "This action will save you song in our records. Do you wish to continue?",
     "fileAlreadyExists": {
-      "message": "The song already exists in our records. Do you want to overwrite it?",
+      "message": "The song already exists in our records. Be aware that if you click 'Overwrite', the previous version of your song will be replaced with this one.",
       "overwrite": "Overwrite"
     },
     "newScript": "New script",

@@ -63,7 +63,7 @@
     "finalize.loadingState": "Enviando canción...",
     "finalize.confirmMessage": "Esta acción va a guardar tu canción en nuestros records. ¿Quieres continuar?",
     "fileAlreadyExists": {
-    "message": "La canción ya existe en nuestros records. ¿Quieres sobrescribirla?",
+    "message": "La canción ya existe en nuestros records. Debes estar consciente de que si oprimes el botón de 'Sobrescribir' la canción en nuestro record va a ser reemplazada con ésta.",
     "overwrite": "Sobrescribir"
   },
     "newScript": "Nuevo script",
