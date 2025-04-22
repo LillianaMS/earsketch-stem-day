@@ -50,6 +50,49 @@ const BEAT_POSITIONS = {
     3: "topleft",
 } as { [key: number]: string }
 
+// RecordingStopwatch component to show elapsed recording time
+const RecordingStopwatch = ({ isActive }: { isActive: boolean }) => {
+    const [elapsedSeconds, setElapsedSeconds] = useState(0)
+    
+    useEffect(() => {
+        let interval: number | null = null
+        
+        if (isActive) {
+            // Reset stopwatch when starting recording
+            setElapsedSeconds(0)
+            
+            // Start interval to update stopwatch every 100ms
+            interval = window.setInterval(() => {
+                setElapsedSeconds(prev => prev + 0.1)
+            }, 100) as unknown as number
+        } else if (interval) {
+            // Clear interval when not recording
+            clearInterval(interval)
+            setElapsedSeconds(0)
+        }
+        
+        return () => {
+            if (interval) clearInterval(interval)
+        }
+    }, [isActive])
+    
+    // Format seconds as mm:ss
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = Math.floor(seconds % 60)
+        const ms = Math.floor((seconds % 1) * 10)
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms}`
+    }
+    
+    if (!isActive) return null
+    
+    return (
+        <div className="recording-stopwatch text-center font-mono font-bold text-red-600">
+            {formatTime(elapsedSeconds)}
+        </div>
+    )
+}
+
 export const Metronome = ({ beat, hasBuffer, useMetro, startRecording }: { beat: number, hasBuffer: boolean, useMetro: boolean, startRecording: () => void }) => {
     const [state, setState] = useState("")
     const measure = Math.floor(beat / 4) + 1
@@ -80,6 +123,8 @@ export const Metronome = ({ beat, hasBuffer, useMetro, startRecording }: { beat:
     return <div className="flex items-center">
         <div className="text-center z-10" style={{ marginLeft: "10px", width: "60px" }}><IndicatorButton /></div>
         <div className={"fixed counter-meter " + (useMetro ? BEAT_POSITIONS[((beat % 4) + 4) % 4] : "hide-metronome")} />
+        {/* Show stopwatch when recording is active */}
+        <RecordingStopwatch isActive={state === "record"} />
     </div>
 }
 

@@ -1062,6 +1062,15 @@ kbd {
   -webkit-animation: blink-animation 1s steps(5, start) infinite;
 }
 
+.recording-stopwatch {
+  margin-left: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+  display: inline-block;
+}
+
 /* Modals */
 
 .modal-footer .buttonmodal {
@@ -1095,12 +1104,16 @@ kbd {
 
 @keyframes blink-animation {
   to {
-    visibility: hidden;
+    opacity: 0;
+    /* Keep the element clickable while invisible */
+    visibility: visible;
   }
 }
 @-webkit-keyframes blink-animation {
   to {
-    visibility: hidden;
+    opacity: 0;
+    /* Keep the element clickable while invisible */
+    visibility: visible;
   }
 }
 
