@@ -274,7 +274,7 @@ const RecordTab = ({ close }: { close: () => void }) => {
                     <span>{t("soundUploader.constantRequired")}</span>
                 </div>
                 <div className="modal-section-content">
-                    <input type="text" placeholder={t("soundUploader.constantPlaceholder.recording")} className="form-input w-full dark:bg-transparent placeholder:text-gray-300" value={name} onChange={e => setName(cleanName(e.target.value))} required />
+                    <input type="text" placeholder={t("soundUploader.constantPlaceholder.recording")} className="form-input w-full dark:bg-transparent placeholder:text-gray-300" value={name} onChange={e => setName(cleanName(e.target.value))} readOnly required />
                 </div>
             </div>}
         </ModalBody>

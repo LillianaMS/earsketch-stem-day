@@ -247,7 +247,7 @@
     "soundUploader.title.upload": "Upload sound",
     "soundUploader.title.record": "Quick record",
     "soundUploader.file.prompt": "Choose a file...",
-    "soundUploader.constantRequired": "Constant Name (required)",
+    "soundUploader.constantRequired": "Constant Name",
     "soundUploader.tempoOptional": "Tempo (Optional)",
     "soundUploader.constantPlaceholder.synth": "e.g. MYSYNTH_01",
     "soundUploader.constantPlaceholder.recording": "e.g. MYRECORDING_01",

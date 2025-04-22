@@ -194,7 +194,7 @@
     "soundUploader.title.upload": "Cargar sonido",
     "soundUploader.title.record": "Grabación rápida",
     "soundUploader.file.prompt": "Seleccionar un archivo...",
-    "soundUploader.constantRequired": "Nombre de la constante (obligatorio)",
+    "soundUploader.constantRequired": "Nombre de la constante",
     "soundUploader.tempoOptional": "Tempo (opcional)",
     "soundUploader.record.measures.title": "Control de compases",
     "soundUploader.record.measures.metronomeClick": "Haz clic mientras grabas",
