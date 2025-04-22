@@ -181,7 +181,7 @@ const TutorialContent = () => {
             <p>Resumen del Paso 6:</p>            
             <ul class="list-disc pl-5 my-4">
                 <li>Escucha una vez más la canción, y si estás list@ para enviarla, haz click en el botón de "Finalizar" en la barra de opciones sobre el editor de código.</li>
-                <li>Al enviar la canción, aparecerá un mensaje con un enlace a un corto cuestionario para que nos dejes saber qué te pareció la actividad.</li>
+                <li>Al enviar la canción, aparecerá un mensaje con un enlace a un corto cuestionario para que nos dejes saber qué te pareció la actividad. Si se cierra esa ventana, aún puedes acceder el enlace <a href="https://qualtricsxmmg4g5wkds.qualtrics.com/jfe/form/SV_0rBGpoYIFrIQMnQ" target="_blank" rel="noopener noreferrer">AQUÍ</a>.</li>
             </ul>
         </div>
         <div class="tutorial-section my-8">
