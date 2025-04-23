@@ -96,6 +96,12 @@
       "message": "The song already exists in our records. Be aware that if you click 'Overwrite', the previous version of your song will be replaced with this one.",
       "overwrite": "Overwrite"
     },
+    "uploadSuccess": {
+      "complete": "Upload Complete",
+      "message": "Congratulations, the song {{fileName}} has been successfully uploaded to our records, and your musical gift for mom is ready!",
+      "feedback": "\nPlease provide your feedback by completing this short survey:",
+      "surveyUrl": "https://qualtricsxmmg4g5wkds.qualtrics.com/jfe/form/SV_0rBGpoYIFrIQMnQ"
+    },
     "newScript": "New script",
     "editor.title": "Code Editor",
     "editor.blocksMode": "Blocks Mode",

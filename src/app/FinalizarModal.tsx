@@ -83,14 +83,31 @@ export const UploadSuccess = ({
     fileName: string, 
     close: () => void 
 }) => {
+    const { t } = useTranslation()
+    
     return <>
-        <ModalHeader>Upload Complete</ModalHeader>
+        <ModalHeader>{t("uploadSuccess.complete")}</ModalHeader>
         <ModalBody>
             <div className="flex items-center">
-                <div className="text-green-500 text-2xl mr-3">✓</div>
+                <div className="text-blue-500 text-2xl mr-3">🎉</div>
                 <p>
-                    <strong>{fileName}</strong> has been successfully uploaded to the server.
+                    {t("uploadSuccess.message", { fileName })}
                 </p>
+            </div>
+            
+            <div className="mt-8 flex items-center">
+                <div className="text-blue-500 text-2xl mr-3"></div>
+                <div>
+                    <p style={{ whiteSpace: 'pre-line' }}>{t("uploadSuccess.feedback")}</p>
+                    <a 
+                        href={t("uploadSuccess.surveyUrl")} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-blue-500 hover:underline break-all mt-2 inline-block"
+                    >
+                        {t("uploadSuccess.surveyUrl")}
+                    </a>
+                </div>
             </div>
         </ModalBody>
         <ModalFooter cancel="Close" close={close} />

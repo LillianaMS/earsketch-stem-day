@@ -66,6 +66,12 @@
     "message": "La canción ya existe en nuestros records. Debes estar consciente de que si oprimes el botón de 'Sobrescribir' la canción en nuestro record va a ser reemplazada con ésta.",
     "overwrite": "Sobrescribir"
   },
+  "uploadSuccess": {
+      "complete": "Archivo Guardado",
+      "message": "¡Felicidades, la canción {{fileName}} ha sido guardada exitosamente en nuestros records, y tu obsequio para mamá está listo!",
+      "feedback": "\nAgradeceremos que nos regales unos segundos para contestar este corto cuestionario:",
+      "surveyUrl": "https://qualtricsxmmg4g5wkds.qualtrics.com/jfe/form/SV_0rBGpoYIFrIQMnQ"
+    },
     "newScript": "Nuevo script",
     "editor.title": "Editor de código",
     "editor.blocksMode": "Modo de bloque",
