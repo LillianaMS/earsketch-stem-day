@@ -33,9 +33,10 @@ export const getStandardSounds = createAsyncThunk<void, void, ThunkAPI>(
         if (!sounds.standardSounds.names.length) {
             const data = (await audioLibrary.getStandardSounds()).sounds
             fillDict(data)
-            const handPickedList = ["IRCA_BOMBA_SICA_MARACA", "IRCA_BOMBA_CONJUNTOS_SICA", "IRCA_BOMBA_SICA_PRIMO_1", "IRCA_BOMBA_SICA_BAJO_1", "IRCA_BOMBA_SICA_ELEC_PIANO",
-                                    "YG_POP_SNARE_7", "RD_POP_MAINBEAT_7", "RD_POP_SYNTHBASS_7", "YG_POP_GUITAR_5", "YG_POP_MELODY_9",
-                                    "KHALID_NORM_DRUMBEAT", "RD_RNB_KEYSRHODES_3", "RD_RNB_JUPITERPAD_3", "RD_RNB_PIANO_1", "RD_RNB_ACOUSTIC_NYLONSTRING_3"]
+            const handPickedList = ["IRCA_BOMBA_SICA_CORTIJO_ELEC_GUITAR_PRI", "IRCA_BOMBA_SICA_CORTIJO_ELEC_GUITAR_SEG", "IRCA_BOMBA_SICA_CORTIJO_ELEC_PIANO", "IRCA_BOMBA_CONJUNTOS_HOLANDE", "IRCA_BOMBA_CONJUNTOS_CUEMBE",
+                                    "IRCA_SALSA_4_KEYS_2", "IRCA_SALSA_4_KEYS_3", "IRCA_SALSA_4_BASS_2", "IRCA_SALSA_PERC_BONGO", "IRCA_CHA_CHA_2_DRUMBEAT",
+                                    "YG_POP_PIANO_6", "YG_POP_PIANO_8", "YG_POP_BASS_3", "RD_POP_MAINBEAT_5", "RD_POP_MAINBEAT_10",
+                                    "RADICAL_NOTHING_SYNTH_1", "RADICAL_NOTHING_STRINGS_2", "RADICAL_NOTHING_BASS", "RD_TRAP_MAIN808_BEAT_13", "SAMIAN_PEUP_BEAT_FULL"]
             const filteredData = data.filter(sound => handPickedList.includes(sound.name))
             const entities = Object.assign({}, ...Array.from(filteredData, (sound) => ({ [sound.name]: sound })))
             const names = data.map(sound => sound.name)
