@@ -113,9 +113,12 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
     
     const confirm = () => {
         try {
-            close(validateScriptName("", extension, qrCodeNum, firstName))
+            const scriptName = validateScriptName("", extension, qrCodeNum, firstName);
+            close(scriptName);
+            return scriptName;
         } catch (error) {
-            setError(error.message)
+            setError(error.message);
+            throw error;
         }
     }
 
@@ -132,20 +135,6 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
 
     async function registerSong(qrCodeNum: string, firstName: string, lastName: string, email: string ): Promise<boolean> {
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
-        
-        // First validate QR code against our CSV file using the global QR code set
-        if (!validateQRCode(qrCodeNum)) {
-            setError("qrCodeNotValid")
-            return false
-        }
-        
-        // Then check if QR code already exists in the database
-        const checkResult = await checkQRCodeExists(qrCodeNum)
-        if (checkResult.exists) {
-            // QR code already exists, show error
-            setError(`qrCodeAlreadyExists:${checkResult.scriptName}`)
-            return false
-        }
         
         try {
             // Register song details (mp3Url will be added later when file is uploaded)
@@ -165,13 +154,45 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
         }
     }
 
+    // Validate QR codes without registering
+    const validateQRCodeOnly = async () => {
+        // Validate QR code against our CSV file using the global QR code set
+        if (!validateQRCode(qrCodeNum)) {
+            setError("qrCodeNotValid")
+            return false
+        }
+        
+        // Then check if QR code already exists in the database
+        const checkResult = await checkQRCodeExists(qrCodeNum)
+        if (checkResult.exists) {
+            // QR code already exists, show error
+            setError(`qrCodeAlreadyExists:${checkResult.scriptName}`)
+            return false
+        }
+        
+        return true
+    }
+
     return <>
         <ModalHeader>{t("scriptCreator.title")}</ModalHeader>
         <form onSubmit={async e => { 
             e.preventDefault();
-            const success = await registerSong(qrCodeNum, firstName, lastName, email);
-            if (success) {
-                confirm();
+            // First validate the QR code
+            const isValid = await validateQRCodeOnly();
+            if (isValid) {
+                try {
+                    // Create the script in earsketch
+                    const scriptName = confirm();
+                    
+                    // Only if script creation succeeded, register in the database
+                    const success = await registerSong(qrCodeNum, firstName, lastName, email);
+                    if (!success) {
+                        // If database registration failed, show error
+                        throw new Error("general.serverError");
+                    }
+                } catch (err) {
+                    setError(err.message);
+                }
             }
         }}>
             <ModalBody>
