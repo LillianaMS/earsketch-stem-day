@@ -1,0 +1,16 @@
+<!doctype html><html><body><script>async function receiveMessage(event) {
+    try {
+      const { username, password } = JSON.parse(event.data)
+      const headers = { Authorization: "Basic " + btoa(username + ":" + password) }
+      const response = await fetch("builderror/EarSketchWS" + "/users/token", { headers })
+      if(response.status !== 200) {
+        throw "Unauthorized"
+      }
+      const token = await (response).text()
+      localStorage.setItem("persist:user", JSON.stringify({ token: JSON.stringify(token) }))
+      window.parent.postMessage("earsketch-login-successful", "*")
+    } catch (e) {
+      window.parent.postMessage("earsketch-login-failed", "*")
+    }
+  }
+  window.addEventListener("message", receiveMessage, false)</script></body></html>
