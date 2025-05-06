@@ -50,31 +50,47 @@ const BEAT_POSITIONS = {
     3: "topleft",
 } as { [key: number]: string }
 
-// RecordingStopwatch component to show elapsed recording time
-const RecordingStopwatch = ({ isActive }: { isActive: boolean }) => {
-    const [elapsedSeconds, setElapsedSeconds] = useState(0)
+// RecordingCountdown component to show remaining recording time
+const RecordingCountdown = ({ isActive, onTimeUp }: { isActive: boolean, onTimeUp: () => void }) => {
+    const [remainingSeconds, setRemainingSeconds] = useState(30)
+    const [isFlashing, setIsFlashing] = useState(false)
     
     useEffect(() => {
         let interval: number | null = null
         
         if (isActive) {
-            // Reset stopwatch when starting recording
-            setElapsedSeconds(0)
+            // Reset countdown when starting recording
+            setRemainingSeconds(30)
+            setIsFlashing(false)
             
-            // Start interval to update stopwatch every 100ms
+            // Start interval to update countdown every 100ms
             interval = window.setInterval(() => {
-                setElapsedSeconds(prev => prev + 0.1)
+                setRemainingSeconds(prev => {
+                    // Update flashing state when 10 seconds or less remain
+                    if (prev <= 10) {
+                        setIsFlashing(true)
+                    }
+                    
+                    // Check if countdown is about to reach zero (at 0.3 seconds)
+                    if (prev <= 0.3) {
+                        if (interval) clearInterval(interval)
+                        onTimeUp() // Stop recording just before reaching zero
+                        return 0
+                    }
+                    return prev - 0.1
+                })
             }, 100) as unknown as number
         } else if (interval) {
             // Clear interval when not recording
             clearInterval(interval)
-            setElapsedSeconds(0)
+            setRemainingSeconds(30)
+            setIsFlashing(false)
         }
         
         return () => {
             if (interval) clearInterval(interval)
         }
-    }, [isActive])
+    }, [isActive, onTimeUp])
     
     // Format seconds as mm:ss
     const formatTime = (seconds: number) => {
@@ -86,9 +102,12 @@ const RecordingStopwatch = ({ isActive }: { isActive: boolean }) => {
     
     if (!isActive) return null
     
+    // Add flashing effect class when 10 seconds or less remain
+    const flashingClass = isFlashing ? "animate-pulse bg-red-100" : ""
+    
     return (
-        <div className="recording-stopwatch text-center font-mono font-bold text-red-600">
-            {formatTime(elapsedSeconds)}
+        <div className={`recording-countdown text-center font-mono font-bold text-red-600 ${flashingClass}`} style={{padding: '0 10px'}}>
+            {formatTime(remainingSeconds)}
         </div>
     )
 }
@@ -102,6 +121,12 @@ export const Metronome = ({ beat, hasBuffer, useMetro, startRecording }: { beat:
         if (state === "record") {
             setState("")
         }
+    }
+
+    // Handle timer completion
+    const handleTimeUp = () => {
+        recorder.stopRecording()
+        setState("")
     }
 
     const IndicatorButton = () => {
@@ -123,8 +148,8 @@ export const Metronome = ({ beat, hasBuffer, useMetro, startRecording }: { beat:
     return <div className="flex items-center">
         <div className="text-center z-10" style={{ marginLeft: "10px", width: "60px" }}><IndicatorButton /></div>
         <div className={"fixed counter-meter " + (useMetro ? BEAT_POSITIONS[((beat % 4) + 4) % 4] : "hide-metronome")} />
-        {/* Show stopwatch when recording is active */}
-        <RecordingStopwatch isActive={state === "record"} />
+        {/* Show countdown when recording is active */}
+        <RecordingCountdown isActive={state === "record"} onTimeUp={handleTimeUp} />
     </div>
 }
 

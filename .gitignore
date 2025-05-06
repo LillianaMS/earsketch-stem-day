@@ -5,7 +5,7 @@
 # Web Client
 node_modules/*
 karma_html/
-# dist/
+dist/
 css/earsketch/allstyles.css
 
 # CSS generated on build
