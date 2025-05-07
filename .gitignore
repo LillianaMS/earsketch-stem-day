@@ -6,6 +6,7 @@
 node_modules/*
 karma_html/
 dist/
+dist/report.html
 css/earsketch/allstyles.css
 
 # CSS generated on build

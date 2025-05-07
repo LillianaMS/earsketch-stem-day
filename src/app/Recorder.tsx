@@ -103,10 +103,10 @@ const RecordingCountdown = ({ isActive, onTimeUp }: { isActive: boolean, onTimeU
     if (!isActive) return null
     
     // Add flashing effect class when 10 seconds or less remain
-    const flashingClass = isFlashing ? "animate-pulse bg-red-100" : ""
+    const flashingClass = isFlashing ? "animate-pulse bg-red-100 text-red-600" : "text-black"
     
     return (
-        <div className={`recording-countdown text-center font-mono font-bold text-red-600 ${flashingClass}`} style={{padding: '0 10px'}}>
+        <div className={`recording-countdown text-center font-mono font-bold ${flashingClass}`} style={{padding: '0 10px'}}>
             {formatTime(remainingSeconds)}
         </div>
     )
