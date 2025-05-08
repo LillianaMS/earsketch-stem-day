@@ -140,9 +140,8 @@ const TutorialContent = () => {
         </div>
         <div class="tutorial-section my-8">
             <h2>¡Felicidades! Has terminado tu canción.</h2>
-            <p>Cuando le entregues la tarjeta a mamá, ella podrá escanear el código QR con la cámara del celular y disfrutar de tu regalo musical.</p>
+            <p>Cuando le entregues la tarjeta a mamá, ella podrá escanear el código QR con la cámara del celular y disfrutar de tu regalo musical. 😎🎵</p>
             <p>¡Esperamos que hayas disfrutado de esta experiencia!</p>
-            <p>Luego de este evento puedes continuar experimentando con EarSketch. 😎🎵 Prontamente estarás recibiendo un correo electrónico con los enlaces que necesitas para ello.</p>
         </div>
     </div>
     `
