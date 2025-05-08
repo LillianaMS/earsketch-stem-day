@@ -37,33 +37,9 @@ const TutorialContent = () => {
         <h1>Cómo usar EarSketch para crear tu canción</h1>
         <p>¡Preparemos una canción para incluir en la tarjeta del Día de las Madres!</p>
         <p>Sigue los siguentes pasos para crear tu canción:</p>
-        <div class="tutorial-section my-8">
-            <h2>Paso 1. Crea un nuevo script</h2>
-            <div class="video-container my-6">
-                <iframe 
-                    width="100%" 
-                    height="315" 
-                    src="https://www.youtube.com/embed/M3euDpgsQBI?si=D1BsHW75V-rMMmS5" 
-                    title="Tutorial de EarSketch" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
-                    allowfullscreen="true"
-                ></iframe>
-            </div>
-
-            <p>Resumen del Paso 1:</p>
-            <ul class="list-disc pl-5 my-4">
-                <li>Presiona el enlace que dice "Haz click aquí para crear un nuevo script."</li>
-                <li>Al llenar los campos del formulario para crear la canción, utiliza el número de código QR de la tarjeta del Día de las Madres que se te entregó.</li>
-                <li>Es importante que el número de código QR sea exactamente igual que el de tu tarjeta. ¡Este número será el ID para tu producto final!</li>
-                <li>Al finalizar el formulario, se abrirá una nueva ventana con el editor de código de EarSketch, el cual contiene código que genera una canción que modificarás a tu gusto.</li>
-                <li>Presióna el botón de "Ejecutar" para que veas la música que se creó con el código.</li>
-                <li>Oprime el botón de PLAY en la Estación de Audio Digital (DAW) para escuchar la canción.</li>
-            </ul>
-        </div>
         
         <div class="tutorial-section my-8">
-            <h2>Paso 2. Modificar sonidos de la canción</h2>
+            <h2>Paso 1. Modificar sonidos de la canción</h2>
             <div class="video-container my-6">
                 <iframe 
                     width="100%" 
@@ -75,8 +51,8 @@ const TutorialContent = () => {
                     allowfullscreen="true"
                 ></iframe>
             </div>
-            <p>Resumen del Paso 2:</p>
-            <p>Ahora que ya tienes un archivo creado para tu canción, puedes:</p>
+            <p>Resumen del Paso 1:</p>
+            <p>Luego de completar el formulario que genera el código para tu canción, puedes:</p>
             
             <ul class="list-disc pl-5 my-4">
                 <li>Explorar los sonidos que hay en la biblioteca de EarSketch.</li>
@@ -92,7 +68,7 @@ const TutorialContent = () => {
         </div>
         
         <div class="tutorial-section my-8">
-            <h2>Paso 3. Añadir un mensaje de voz para mamá</h2>
+            <h2>Paso 2. Añadir un mensaje de voz para mamá</h2>
             <div class="video-container my-6">
                 <iframe 
                     width="100%" 
@@ -104,7 +80,7 @@ const TutorialContent = () => {
                     allowfullscreen="true"
                 ></iframe>
             </div>
-            <p>Resumen del Paso 3:</p>
+            <p>Resumen del Paso 2:</p>
             <ul class="list-disc pl-5 my-4">
                 <li>En la sección de sonidos hay un botón para "Añadir sonido". Oprime este botón para grabar tu mensaje personalizado para mamá.</li>
                 <li>El sonido que grabaste aparecerá en la lista de sonidos de usuario con el mismo nombre de tu canción.</li>
@@ -123,7 +99,7 @@ const TutorialContent = () => {
         </div>
 
         <div class="tutorial-section my-8">
-            <h2>Paso 4. Cambiar la duración de la canción</h2>
+            <h2>Paso 3. Cambiar la duración de la canción</h2>
             <div class="video-container my-6">
                 <iframe 
                     width="100%" 
@@ -135,38 +111,16 @@ const TutorialContent = () => {
                     allowfullscreen="true"
                 ></iframe>
             </div>
-            <p>Resumen del Paso 4:</p>            
+            <p>Resumen del Paso 3:</p>            
             <ul class="list-disc pl-5 my-4">
                 <li>Dentro de la variable "fin" (en la línea 7 del código) hay un valor numérico guardado.</li>
                 <li>Ese valor numérico define cuánto dura la canción.</li>
                 <li>Juega con ese número para modificar la duración de tu canción.</li>
             </ul>
         </div>
-
-        <div class="tutorial-section my-8">
-            <h2>Paso 5. Cambiar el tempo de la canción</h2>
-            <div class="video-container my-6">
-                <iframe 
-                    width="100%" 
-                    height="315" 
-                    src="https://www.youtube.com/embed/zunBCafN8_g?si=nXFBQq4pZCVR5Wrf" 
-                    title="Tutorial de EarSketch" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
-                    allowfullscreen="true"
-                ></iframe>
-            </div>
-            <p>Resumen del Paso 5:</p>            
-            <ul class="list-disc pl-5 my-4">
-                <li>La función setTempo() en la línea 5, define la velocidad de la canción.</li>
-                <li>Juega con el valor numérico dentro de los paréntesis de la función para cambiar la velocidad en la que se escucha tu canción.</li>
-                <li>Mientras más bajito el número, más lenta sonará la música, y mientras más alto, más rápida se escuchará.</li>
-                <li>Rango de valores permitidos para la función setTempo(): 45 al 220</li>
-            </ul>
-        </div>
         
         <div class="tutorial-section my-8">
-            <h2>Paso 6. Revisar y enviar canción</h2>
+            <h2>Paso 4. Revisar y enviar canción</h2>
             <div class="video-container my-6">
                 <iframe 
                     width="100%" 
@@ -178,7 +132,7 @@ const TutorialContent = () => {
                     allowfullscreen="true"
                 ></iframe>
             </div>
-            <p>Resumen del Paso 6:</p>            
+            <p>Resumen del Paso 4:</p>            
             <ul class="list-disc pl-5 my-4">
                 <li>Escucha una vez más la canción, y si estás list@ para enviarla, haz click en el botón de "Finalizar" en la barra de opciones sobre el editor de código.</li>
                 <li>Al enviar la canción, aparecerá un mensaje con un enlace a un corto cuestionario para que nos dejes saber qué te pareció la actividad. Si se cierra esa ventana, aún puedes acceder el enlace <a href="https://qualtricsxmmg4g5wkds.qualtrics.com/jfe/form/SV_0rBGpoYIFrIQMnQ" target="_blank" rel="noopener noreferrer">AQUÍ</a>.</li>
