@@ -36,6 +36,7 @@ export const getStandardSounds = createAsyncThunk<void, void, ThunkAPI>(
             const handPickedList = ["IRCA_BOMBA_SICA_CORTIJO_ELEC_GUITAR_PRI", "IRCA_BOMBA_SICA_CORTIJO_ELEC_GUITAR_SEG", "IRCA_BOMBA_SICA_CORTIJO_ELEC_PIANO", "IRCA_BOMBA_CONJUNTOS_HOLANDE", "IRCA_BOMBA_CONJUNTOS_CUEMBE",
                                     "IRCA_SALSA_4_KEYS_2", "IRCA_SALSA_4_KEYS_3", "IRCA_SALSA_4_BASS_2", "IRCA_SALSA_PERC_BONGO", "IRCA_CHA_CHA_2_DRUMBEAT",
                                     "YG_POP_PIANO_6", "YG_POP_PIANO_8", "YG_POP_BASS_3", "RD_POP_MAINBEAT_5", "RD_POP_MAINBEAT_10",
+                                    "TFLAMES_OMEN_STRINGS_CHOR_1", "TFLAMES_OMEN_GUITARS_2_CHOR_2", "TFLAMES_OMEN_BASS_CHOR_2", "TFLAMES_OMEN_SNARE_CHOR", "TFLAMES_OC_OH_CHOR_1",
                                     "RADICAL_NOTHING_SYNTH_1", "RADICAL_NOTHING_STRINGS_2", "RADICAL_NOTHING_BASS", "RD_TRAP_MAIN808_BEAT_13", "SAMIAN_PEUP_BEAT_FULL"]
             const filteredData = data.filter(sound => handPickedList.includes(sound.name))
             const entities = Object.assign({}, ...Array.from(filteredData, (sound) => ({ [sound.name]: sound })))
