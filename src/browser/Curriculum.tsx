@@ -44,7 +44,7 @@ const TutorialContent = () => {
                 <iframe 
                     width="100%" 
                     height="315" 
-                    src="https://www.youtube.com/embed/rXzRqzot1uc?si=0zcdSLlIWQVI-Xif" 
+                    src="https://www.youtube.com/embed/z5gfHwsj5Mc?si=oGY3ENPLWLiKZMJM" 
                     title="Tutorial de EarSketch" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
@@ -73,7 +73,7 @@ const TutorialContent = () => {
                 <iframe 
                     width="100%" 
                     height="315" 
-                    src="https://www.youtube.com/embed/ZrCNJpvMpVM?si=BX8Fc0hme4pGUC7s" 
+                    src="https://www.youtube.com/embed/9YR7xvK56pE?si=OgTkh9J-koeCdB1u" 
                     title="Tutorial de EarSketch" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
@@ -104,7 +104,7 @@ const TutorialContent = () => {
                 <iframe 
                     width="100%" 
                     height="315" 
-                    src="https://www.youtube.com/embed/dr23KqdERuU?si=34gfHoL3bQoJ4q9u" 
+                    src="https://www.youtube.com/embed/tZ1Nbpb1nDg?si=8VH6ZTKQfwvBTRVW" 
                     title="Tutorial de EarSketch" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
@@ -125,7 +125,7 @@ const TutorialContent = () => {
                 <iframe 
                     width="100%" 
                     height="315" 
-                    src="https://www.youtube.com/embed/vG2lEuxT7LU?si=TNbeHm4jEz-LUpA7" 
+                    src="https://www.youtube.com/embed/X6TOrTx1f_E?si=E-UiEXjDzel4NhaF" 
                     title="Tutorial de EarSketch" 
                     frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
