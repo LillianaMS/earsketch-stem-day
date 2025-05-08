@@ -152,18 +152,19 @@ const TutorialContent = () => {
     return content
 }
 
-const TutorialPane = () => {
+const TutorialPaneComponent = () => {
     const { t } = useTranslation()
     const language = useSelector(appState.selectScriptLanguage)
     const currentLocale = useSelector(appState.selectLocale)
     const fontSize = useSelector(appState.selectFontSize)
     const theme = useSelector(appState.selectColorTheme)
     const paneIsOpen = useSelector(layout.isEastOpen)
-    const tutorialContent = TutorialContent()
+    // Memo the tutorial content so it only changes when the language changes
+    const tutorialContent = React.useMemo(() => TutorialContent(), [language, currentLocale])
     const tutorialBody = useRef<HTMLElement>(null)
 
     useEffect(() => {
-        if (tutorialContent && tutorialBody.current) {
+        if (tutorialContent && tutorialBody.current && paneIsOpen) {
             tutorialBody.current.appendChild(tutorialContent)
             tutorialBody.current.scrollTop = 0
             return () => tutorialContent.remove()
@@ -190,7 +191,11 @@ const TutorialPane = () => {
         : <Collapsed title="TUTORIAL" position="east" />
 }
 
-export const Curriculum = () => {
+// Use React.memo without a custom comparison function
+// This allows the component to respond to the paneIsOpen state changes
+const TutorialPane = React.memo(TutorialPaneComponent)
+
+const CurriculumComponent = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -200,3 +205,5 @@ export const Curriculum = () => {
 
     return <TutorialPane />
 }
+
+export const Curriculum = React.memo(CurriculumComponent)
