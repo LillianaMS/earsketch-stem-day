@@ -22,8 +22,16 @@ export function openModal<T extends appState.Modal>(modal: T, props?: Omit<Param
                     close()
                 }
             }
-            return modal({ ...props, close: closeWrapper })
+
+            // Get the current state from the store each time this component renders
+            const currentModal = appState.selectModal(store.getState());
+            const currentProps = currentModal?.props || {};
+
+            // Combine the initial props with any updates that have happened
+            return modal({ ...props, ...currentProps, close: closeWrapper })
         }
-        store.dispatch(appState.setModal({ Modal: wrappedModal, resolve }))
+
+        // Store the initial props alongside the modal
+        store.dispatch(appState.setModal({ Modal: wrappedModal, resolve, props }))
     })
 }

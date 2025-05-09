@@ -27,7 +27,7 @@ const appSlice = createSlice({
         embeddedScriptName: null,
         embeddedScriptUsername: null,
         embeddedShareID: null,
-        modal: null as { Modal: Modal, resolve: (_: any) => void } | null,
+        modal: null as { Modal: Modal, resolve: (_: any) => void, props?: any } | null,
         confetti: false,
     },
     reducers: {
@@ -70,6 +70,11 @@ const appSlice = createSlice({
         setModal(state, { payload }) {
             state.modal = payload
         },
+        updateModalProps(state, { payload }) {
+            if (state.modal) {
+                state.modal.props = { ...state.modal.props, ...payload }
+            }
+        },
         setConfetti(state, { payload }) {
             state.confetti = payload
         },
@@ -96,6 +101,7 @@ export const {
     setEmbeddedShareID,
     setLocaleCode,
     setModal,
+    updateModalProps,
     setConfetti,
 } = appSlice.actions
 
