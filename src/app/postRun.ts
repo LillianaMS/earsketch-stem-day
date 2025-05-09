@@ -9,6 +9,10 @@ import { TempoMap } from "./tempo"
 import { timestretchBuffer } from "./timestretch"
 import * as userConsole from "../ide/console"
 import { setCurrentOverlap } from "../cai/dialogue"
+import { updateSharingInfo } from "./ScriptCreator"
+import * as scriptsState from "../browser/scriptsState"
+import * as tabs from "../ide/tabState"
+import store from "../reducers"
 
 // After running code, go through each clip, load the audio file and
 // replace looped ones with multiple clips. Why? Because we don't know
@@ -39,6 +43,40 @@ export async function postRun(result: DAWData) {
     // STEP 5: Insert metronome as the first track.
     esconsole("Adding metronome track.", ["debug", "runner"])
     await addMetronome(result)
+
+    // STEP 6: Update sharing information in the database if this is a STEM Day script
+    try {
+        // We need to get the active script from the Redux store to access its properties
+        // Import necessary functions at the top of the file, not here
+        const scriptMap = scriptsState.selectActiveScripts(store.getState());
+        const activeTab = tabs.selectActiveTabID(store.getState()) as string;
+        const script = scriptMap[activeTab];
+
+        // Check if the script has a shareid and a name format that matches STEM Day scripts (QR code)
+        if (script && script.shareid && script.name) {
+            esconsole(`Script has shareid: ${script.shareid}`, ["debug", "runner"])
+
+            // Extract QR code from script name (assuming format: QRCODE_firstname.ext)
+            const qrCodeMatch = script.name.match(/^([A-Z0-9]+)_/);
+            if (qrCodeMatch && qrCodeMatch[1]) {
+                const qrCodeNum = qrCodeMatch[1];
+                esconsole(`Extracted QR code from script name: ${qrCodeNum}`, ["debug", "runner"])
+
+                // Update sharing information in the database
+                const success = await updateSharingInfo(qrCodeNum, script.shareid);
+                if (success) {
+                    esconsole(`Successfully updated sharing info for QR code ${qrCodeNum}`, ["debug", "runner"])
+                } else {
+                    esconsole(`Failed to update sharing info for QR code ${qrCodeNum}`, ["error", "runner"])
+                }
+            } else {
+                esconsole(`Script name doesn't match STEM Day format: ${script.name}`, ["debug", "runner"])
+            }
+        }
+    } catch (error) {
+        // Don't let sharing info update failures affect the script execution
+        esconsole(`Error updating sharing info: ${error}`, ["error", "runner"])
+    }
 }
 
 export async function loadBuffersForTransformedClips(result: DAWData) {

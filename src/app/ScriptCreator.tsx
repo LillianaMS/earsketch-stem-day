@@ -135,14 +135,14 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
 
     async function registerSong(qrCodeNum: string, firstName: string, lastName: string, email: string ): Promise<boolean> {
         const scriptName = qrCodeNum + "_" + firstName.toLowerCase() + extension
-        
+
         try {
             // Register song details (mp3Url will be added later when file is uploaded)
-            const response = await axios.post(`${STEM_API_ROUTE}/registry`, { 
-                "qrCodeNum": qrCodeNum, 
-                "firstName": firstName, 
-                "lastName": lastName, 
-                "email": email, 
+            const response = await axios.post(`${STEM_API_ROUTE}/registry`, {
+                "qrCodeNum": qrCodeNum,
+                "firstName": firstName,
+                "lastName": lastName,
+                "email": email,
                 "scriptName": scriptName
             })
             console.log(JSON.stringify(response.data))
@@ -293,4 +293,33 @@ export const ScriptCreator = ({ close }: { close: (value?: any) => void }) => {
             <ModalFooter submit="create" close={close} />
         </form>
     </>
+}
+
+// Function to update sharing information for a song
+export async function updateSharingInfo(qrCodeNum: string, shareID: string): Promise<boolean> {
+    try {
+        console.log(`Updating sharing info for QR code ${qrCodeNum} with shareID ${shareID}`)
+
+        // Create EarSketch share URL
+        const earsketchBaseUrl = "https://earsketch.gatech.edu/earsketch2"
+        const shareUrl = earsketchBaseUrl + "/?sharing=" + shareID
+
+        // Send sharing information to the server
+        const response = await axios.patch(`${STEM_API_ROUTE}/sharing`, {
+            qrCodeNum: qrCodeNum,
+            shareID: shareID,
+            shareUrl: shareUrl
+        })
+
+        if (response.data.success) {
+            console.log(`Successfully updated share details for QR code ${qrCodeNum}`)
+            return true
+        } else {
+            console.error(`Failed to update share details: ${response.data.message}`)
+            return false
+        }
+    } catch (error) {
+        console.error(`Error updating share details: ${error}`)
+        return false
+    }
 }

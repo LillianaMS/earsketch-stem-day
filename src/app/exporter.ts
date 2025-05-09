@@ -103,131 +103,166 @@ export async function uploadMp3ToServer(script: Script) {
         // Replace file extension with .mp3
         const qrCodeFromScriptName = scriptName.split('_')[0]
         const mp3FileName = qrCodeFromScriptName + '.mp3'
-        
+
+        // Validate QR code
+        if (!qrCodeFromScriptName || qrCodeFromScriptName.length === 0) {
+            esconsole("Invalid QR code in script name", ["error", "exporter"])
+            await openModal(UploadError, {
+                fileName: mp3FileName,
+                errorMessage: "Invalid QR code in script name. Script name should start with QR code."
+            })
+            throw new Error("Invalid QR code in script name")
+        }
+
         // First ask for confirmation using FinalizarConfirm
         const confirmSubmit = await openModal(FinalizarConfirm)
-        
+
         if (!confirmSubmit) {
             esconsole("Upload cancelled by user", ["debug", "exporter"])
             throw new Error("Upload cancelled")
         }
-        
+
         // Check if file already exists
         const fileExists = await checkFileExists(mp3FileName)
-        
+
         if (fileExists) {
             // Ask user for confirmation to overwrite using EarSketch modal
             const confirmOverwrite = await openModal(OverwriteConfirm, { fileName: mp3FileName })
-            
+
             if (!confirmOverwrite) {
                 esconsole("File upload cancelled by user", ["debug", "exporter"])
                 throw new Error("Upload cancelled")
             }
         }
-        
+
         // First generate the MP3 file but don't download it locally
-        const blob = await exportAudio(script, "mp3", renderer.renderMp3, false)
-        
+        let blob: Blob
+        try {
+            blob = await exportAudio(script, "mp3", renderer.renderMp3, false)
+        } catch (renderError) {
+            esconsole(`Error rendering MP3: ${renderError}`, ["error", "exporter"])
+            await openModal(UploadError, {
+                fileName: mp3FileName,
+                errorMessage: `Error generating MP3 file: ${renderError.message}`
+            })
+            throw renderError
+        }
+
         // Create a new blob with the correct MIME type
         const mp3Blob = new Blob([blob], { type: 'audio/mpeg' })
-        
+
         // Create FormData to send the file
         const formData = new FormData()
         formData.append('mp3File', mp3Blob, mp3FileName)
-        
-        // Open progress modal
-        const uploadProgressModal = {
-            modal: UploadProgress,
-            props: { fileName: mp3FileName, progress: 0 },
-            closeAfterUpload: true
-        }
-        
+
+        // Show progress modal
         let closeProgressModal: () => void = () => {}
-        
-        const progressPromise = new Promise<void>((resolve) => {
-            // Show progress modal but keep it open until upload completes
-            openModal(UploadProgress, { 
-                fileName: mp3FileName, 
-                progress: 0
-            }).then(result => {
-                if (typeof result === 'function') {
-                    closeProgressModal = result
-                } else {
-                    closeProgressModal = () => {}
-                }
-                resolve()
-            })
-        })
-        
-        const qrCodeNum = qrCodeFromScriptName
-        
-        // Send the file to the server and update mp3Url in the DB
-        const response = await fetch(`${STEM_API_ROUTE}/upload-song`, {
-            method: 'POST',
-            body: formData,
-        })
-        
-        // Close the progress modal
-        closeProgressModal()
-        
-        if (!response.ok) {
-            const errorText = await response.text()
-            esconsole(`Server error: ${errorText}`, ["error", "exporter"])
-            // Show error modal
-            await openModal(UploadError, { 
-                fileName: mp3FileName, 
-                errorMessage: `Server responded with status: ${response.status}` 
-            })
-            throw new Error(`Server responded with status: ${response.status}`)
-        }
-        
-        const data = await response.json()
-        
-        if (!data.success) {
-            // Show error modal
-            await openModal(UploadError, { 
-                fileName: mp3FileName, 
-                errorMessage: data.message || 'Unknown error occurred during upload' 
-            })
-            throw new Error(data.message || 'Unknown error occurred during upload')
-        }
-        
-        // Now that the file is uploaded successfully, also update the shareID and shareUrl
-        if (qrCodeNum) {
-            try {
-                // Create EarSketch share URL
-                const earsketchBaseUrl = "https://earsketch.gatech.edu/earsketch2"
-                const shareUrl = earsketchBaseUrl + "/?sharing=" + script.shareid
-                
-                // Send sharing information to the server
-                const sharingResponse = await fetch(`${STEM_API_ROUTE}/sharing`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        qrCodeNum: qrCodeNum,
-                        shareID: script.shareid,
-                        shareUrl: shareUrl
-                    })
+
+        try {
+            await new Promise<void>((resolve) => {
+                openModal(UploadProgress, {
+                    fileName: mp3FileName,
+                    progress: 0
+                }).then(result => {
+                    if (typeof result === 'function') {
+                        closeProgressModal = result
+                    } else {
+                        closeProgressModal = () => {}
+                    }
+                    resolve()
                 })
-                
-                if (sharingResponse.ok) {
-                    esconsole(`Share details updated for QR code ${qrCodeNum}`, ["debug", "exporter"])
-                } else {
-                    esconsole(`Failed to update share details for QR code ${qrCodeNum}`, ["error", "exporter"])
-                }
-            } catch (shareError) {
-                // Log but don't fail the overall process
-                esconsole(`Error updating share details: ${shareError}`, ["error", "exporter"])
+            })
+
+            const qrCodeNum = qrCodeFromScriptName
+
+            // First prepare the sharing information to ensure shareid is valid
+            if (!script.shareid) {
+                esconsole("Missing share ID", ["error", "exporter"])
+                closeProgressModal()
+                await openModal(UploadError, {
+                    fileName: mp3FileName,
+                    errorMessage: "Missing share ID. Please run your script before submitting."
+                })
+                throw new Error("Missing share ID")
             }
+
+            const earsketchBaseUrl = "https://earsketch.gatech.edu/earsketch2"
+            const shareUrl = earsketchBaseUrl + "/?sharing=" + script.shareid
+
+            // First check if the QR code exists in the database (this will fail early if QR code is invalid)
+            const checkQRResponse = await fetch(`${STEM_API_ROUTE}/check-qrcode-exists/${qrCodeNum}`)
+            if (!checkQRResponse.ok) {
+                closeProgressModal()
+                const errorData = await checkQRResponse.json()
+                esconsole(`QR code check failed: ${errorData.message}`, ["error", "exporter"])
+                await openModal(UploadError, {
+                    fileName: mp3FileName,
+                    errorMessage: errorData.message || `QR code ${qrCodeNum} not found in database`
+                })
+                throw new Error(`QR code check failed: ${errorData.message}`)
+            }
+
+            const qrCodeData = await checkQRResponse.json()
+            if (!qrCodeData.exists) {
+                closeProgressModal()
+                esconsole(`QR code ${qrCodeNum} not found in database`, ["error", "exporter"])
+                await openModal(UploadError, {
+                    fileName: mp3FileName,
+                    errorMessage: `QR code ${qrCodeNum} not found in database. Please check your script name.`
+                })
+                throw new Error(`QR code ${qrCodeNum} not found in database`)
+            }
+
+            // Add shareID and shareUrl to the FormData
+            formData.append('shareID', script.shareid)
+            formData.append('shareUrl', shareUrl)
+
+            // Send the file and sharing information to the server in a single request
+            // This uses our new combined endpoint that handles both file upload and share update in a single transaction
+            const response = await fetch(`${STEM_API_ROUTE}/upload-song-with-sharing`, {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (!response.ok) {
+                closeProgressModal()
+                const errorText = await response.text()
+                esconsole(`Server error: ${errorText}`, ["error", "exporter"])
+                await openModal(UploadError, {
+                    fileName: mp3FileName,
+                    errorMessage: `Server error: ${errorText || `Status ${response.status}`}`
+                })
+                throw new Error(`Server responded with status: ${response.status}`)
+            }
+
+            const data = await response.json()
+
+            if (!data.success) {
+                closeProgressModal()
+                esconsole(`Upload error: ${data.message}`, ["error", "exporter"])
+                await openModal(UploadError, {
+                    fileName: mp3FileName,
+                    errorMessage: data.message || 'Unknown error occurred during upload'
+                })
+                throw new Error(data.message || 'Unknown error occurred during upload')
+            }
+
+            // If we get here, both the MP3 upload and sharing information update were successful
+            esconsole(`File uploaded and share details updated for QR code ${qrCodeNum}`, ["debug", "exporter"])
+
+            // Close the progress modal here, after all operations are complete
+            closeProgressModal()
+
+            // Show success modal only if everything succeeded
+            await openModal(UploadSuccess, { fileName: mp3FileName })
+
+            esconsole(`MP3 file uploaded successfully: ${data.mp3Url}`, ["debug", "exporter"])
+            return data.mp3Url
+        } catch (uploadError) {
+            // Ensure progress modal is closed in case of error
+            closeProgressModal()
+            throw uploadError
         }
-        
-        // Show success modal
-        await openModal(UploadSuccess, { fileName: mp3FileName })
-        
-        esconsole(`MP3 file uploaded successfully: ${data.mp3Url}`, ["debug", "exporter"])
-        return data.mp3Url
     } catch (err) {
         esconsole(`Error uploading MP3 to server: ${err}`, ["error", "exporter"])
         // Don't show error message for user-cancelled uploads
