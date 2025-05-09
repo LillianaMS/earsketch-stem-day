@@ -1,5 +1,10 @@
 {
   "common": {
+    "networkError": {
+      "header": "Internet Connection Issue",
+      "message": "Unable to connect to EarSketch servers due to slow or unavailable internet connection.",
+      "instruction": "Please check your internet connection and try again."
+    },
     "loading": "Loading...",
     "contentManager.title": "Content Manager",
     "contentManager.openTab": "Open {{name}} Tab",
@@ -1218,8 +1223,13 @@
       "ValueError": "A provided argument is not within the set or range of acceptable values for a function",
       "RangeError": "A provided argument is not within the set or range of acceptable values for a function",
       "ReferenceError": "There is an error with a variable or function name that is not defined",
-      "NetworkError": "Please try running the code again. If the issue persists, check your internet connection or contact network administrator.",
+      "NetworkError": "Internet connection appears to be slow or unavailable. Please check your connection and try running the code again.",
       "ServerError": "Please try running the code again. If the issue persists, please report the issue using 'Report Error' in the information menu."
+    },
+    "networkError": {
+      "header": "Internet Connection Issue",
+      "message": "Unable to connect to EarSketch servers due to slow or unavailable internet connection.",
+      "instruction": "Please check your internet connection and try again. If the problem persists, try reloading the page."
     }
   }
 }

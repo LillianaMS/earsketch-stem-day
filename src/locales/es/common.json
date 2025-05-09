@@ -1,5 +1,10 @@
 {
   "common": {
+    "networkError": {
+      "header": "Problema de Conexión al Internet",
+      "message": "No se puede conectar a los servidores de EarSketch debido a una conexión de internet lenta o no disponible.",
+      "instruction": "Por favor, verifica tu conexión a internet e intenta nuevamente."
+    },
     "loading": "Cargando...",
     "contentManager.title": "Gestor de contenidos",
     "search": "Búsqueda",

@@ -2,6 +2,8 @@
 import ctx from "../audio/context"
 import { SoundEntity } from "common"
 import esconsole from "../esconsole"
+import { openModal } from "./modal"
+import { NetworkErrorModal } from "./NetworkErrorModal"
 
 export type Sound = SoundEntity & { buffer: AudioBuffer }
 
@@ -9,6 +11,15 @@ export const cache = {
     // We cache promises (rather than results) so we don't launch a second request while waiting on the first request.
     standardSounds: null as Promise<{ sounds: SoundEntity[], folders: string[] }> | null,
     promises: Object.create(null) as { [key: string]: Promise<Sound> },
+}
+
+// Helper function to show network error modal for slow internet
+function showNetworkErrorModal() {
+    // Show this only once per session to avoid annoying multiple popups
+    if (!window.networkErrorShown) {
+        window.networkErrorShown = true
+        openModal(NetworkErrorModal)
+    }
 }
 
 // Get an audio buffer from a file key.
@@ -26,6 +37,15 @@ export function getSound(filekey: string) {
     return promise.catch(error => {
         // Request failed. Remove from cache so future requests can try again.
         delete cache.promises[filekey]
+
+        // If it's a network error, show the modal but don't crash the app
+        if (error.message && (error.message.includes("NetworkError") || error.name === "TypeError")) {
+            showNetworkErrorModal()
+            // Return an empty sound object or null to prevent the app from crashing
+            return null
+        }
+
+        // For other errors, rethrow
         throw error
     })
 }
@@ -41,10 +61,12 @@ async function _getSound(name: string) {
         result = await getMetadata(name)
     } catch (err) {
         esconsole("Error getting sound: " + name, ["error", "audiolibrary"])
-        throw err
+        showNetworkErrorModal()
+        return null
     }
     if (result === null) {
-        throw new ReferenceError(`Sound ${name} does not exist`)
+        esconsole(`Sound ${name} does not exist`, ["error", "audiolibrary"])
+        return null
     }
 
     // Server uses -1 to indicate no tempo; for type-safety, we remap this to undefined.
@@ -60,12 +82,17 @@ async function _getSound(name: string) {
     } catch (err) {
         esconsole("Error getting " + name + " from the server", ["error", "audiolibrary"])
         const status = err.status
-        if (status <= 0) {
-            throw new Error(`NetworkError: Could not retreive sound file ${name} due to network error`)
+        if (status <= 0 || err.name === "TypeError") {
+            // Show network error modal for slow internet
+            showNetworkErrorModal()
+            // Return null rather than throwing an error
+            return null
         } else if (status >= 500 && status < 600) {
-            throw new Error(`ServerError: Could not retreive sound file ${name} due to server error`)
+            esconsole(`ServerError: Could not retrieve sound file ${name} due to server error`, ["error", "audiolibrary"])
+            return null
         } else {
-            throw err
+            esconsole(`Error: ${err.message}`, ["error", "audiolibrary"])
+            return null
         }
     }
 
@@ -118,6 +145,15 @@ export function getStandardSounds() {
     return promise.catch(error => {
         // Request failed. Remove from cache so future requests can try again.
         cache.standardSounds = null
+
+        // If it's a network error, show the modal but don't crash the app
+        if (error.message && (error.message.includes("NetworkError") || error.name === "TypeError")) {
+            showNetworkErrorModal()
+            // Return empty sounds and folders to prevent the app from crashing
+            return { sounds: [], folders: [] }
+        }
+
+        // For other errors, rethrow
         throw error
     })
 }
@@ -130,21 +166,50 @@ async function _getStandardSounds() {
         esconsole(`Fetched ${Object.keys(sounds).length} sounds in ${folders.length} folders`, ["debug", "audiolibrary"])
         return { sounds, folders }
     } catch (err) {
-        esconsole("HTTP status: " + err.status, ["error", "audiolibrary"])
-        throw err
+        esconsole("Error fetching standard sounds: " + err, ["error", "audiolibrary"])
+        const status = err.status
+        if (status <= 0 || err.name === "TypeError") {
+            // Show network error modal for slow internet
+            showNetworkErrorModal()
+            // Return empty data instead of throwing an error
+            return { sounds: [], folders: [] }
+        } else if (status >= 500 && status < 600) {
+            esconsole(`ServerError: Could not retrieve sound library due to server error`, ["error", "audiolibrary"])
+            return { sounds: [], folders: [] }
+        } else {
+            esconsole(`Error: ${err.message}`, ["error", "audiolibrary"])
+            return { sounds: [], folders: [] }
+        }
     }
 }
 
 export async function getMetadata(name: string) {
     esconsole("Verifying the presence of audio clip for " + name, ["debug", "audiolibrary"])
     const url = URL_DOMAIN + "/audio/metadata?" + new URLSearchParams({ name })
-    const response = await fetch(url)
-    const text = await response.text()
-    if (!text) {
-        // Server returns 200 OK + empty string for invalid keys, which breaks JSON parsing.
-        // TODO: Server should return a more reasonable response. (Either an HTTP error code or a valid JSON object such as `null`.)
-        return null
+    try {
+        const response = await fetch(url)
+        const text = await response.text()
+        if (!text) {
+            // Server returns 200 OK + empty string for invalid keys, which breaks JSON parsing.
+            // TODO: Server should return a more reasonable response. (Either an HTTP error code or a valid JSON object such as `null`.)
+            return null
+        }
+        const data: SoundEntity = JSON.parse(text)
+        return "name" in data ? data : null
+    } catch (err) {
+        esconsole("Error fetching metadata for " + name, ["error", "audiolibrary"])
+        const status = err.status
+        if (status <= 0 || err.name === "TypeError") {
+            // Show network error modal for slow internet
+            showNetworkErrorModal()
+            // Return null instead of throwing an error
+            return null
+        } else if (status >= 500 && status < 600) {
+            esconsole(`ServerError: Could not retrieve sound information due to server error`, ["error", "audiolibrary"])
+            return null
+        } else {
+            esconsole(`Error: ${err.message}`, ["error", "audiolibrary"])
+            return null
+        }
     }
-    const data: SoundEntity = JSON.parse(text)
-    return "name" in data ? data : null
 }
