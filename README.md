@@ -1,8 +1,47 @@
-# EarSketch Webclient
+# EarSketch Webclient – Puerto Rico 2025 NSF STEM Day Celebration
 
-Make beats. Learn code.
+This customized version of the EarSketch Webclient was developed for the 2025 NSF STEM Day celebration in Puerto Rico, as part of **'Proyecto Remezcla'**. The event, held at the island's busiest shopping center, offered visitors a 15-minute hands-on activity: programming a Mother's Day-themed song. The activity was designed to be quick, engaging, and accessible for first-time users.
 
-Check it out at https://earsketch.gatech.edu.
+Participants created short musical compositions using a simplified interface and recorded voice messages. These were embedded into personalized Mother's Day cards via QR codes, allowing recipients to listen to the songs at home.
+
+## Key Modifications
+
+- **Simplified Sound Loop Selection**  
+  The sound loop list was limited to 25 sounds and organized by genre and key to help users more easily combine sounds.
+
+- **Customized Script Creation Form**  
+  Participants entered their QR code, name, and email. After submission, a code template was generated using their first name and QR code for the script name.
+
+- **Event Tutorial Pane**  
+  The "Curriculum" pane was replaced with a step-by-step event tutorial, supported by YouTube video guides.
+
+- **Blocks Mode as Default**  
+  Blocks mode was set as the default to minimize user errors. Only essential API blocks were included:  
+  - from earsketch import * 
+  - setTempo()
+  - fitMedia()
+  - setEffect()
+  - insertMedia()
+
+- **Hidden API Component**  
+  The full API view was disabled to keep the experience streamlined for short sessions.
+
+- **Simplified SoundUploader**  
+  The component was modified to display only the recorder. It:
+  - Removes the metronome
+  - Adds a 30-second countdown
+  - Saves recordings using the user’s QR code and first name
+
+- **"Send" Button in Editor Header**  
+  A new button allows users to:
+  - Convert their song to MP3
+  - Upload it to the event server
+  - Access it later via QR code
+
+- **Submission Confirmation & Feedback**  
+  After submission, a modal confirms the upload and provides a **Qualtrics feedback link** for participants.
+
+
 
 ## Getting Started
 
